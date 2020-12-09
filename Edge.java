@@ -17,15 +17,8 @@ public class Edge extends GraphElement {
 	}
 
 
-//	public Edge(Node node1, int x, int y) {
-//		super();
-//		this.node1 = node1;
-//		this.node2 = new Node(this, new Coords(x,y));
-//	}
-
-
-	public Edge(Node node1, Node node2) {
-		super();
+	public Edge(Node node1, Node node2, DungeonMap m) {
+		super(m);
 		this.node1 = node1;
 		this.node2 = node2;
 	}

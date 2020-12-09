@@ -9,13 +9,24 @@ public class Dungeon implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -6204328942304442080L;
-	List<Map> maps;
+	List<DungeonMap> maps;
 	
-	public void addMap(Map m) {
+	public void addMap(DungeonMap m) {
 		getMaps().add(m);
 	}
 	
-	public List<Map> getMaps() {
+	public boolean addMap(String mapName) {
+		DungeonMap m = new DungeonMap(mapName);
+		
+		if (getMaps().contains(m)) {
+			return false;
+		} else {
+			maps.add(m);
+			return true;
+		}
+	}
+	
+	public List<DungeonMap> getMaps() {
 		if (maps==null) {
 			maps = new ArrayList<>();
 		}

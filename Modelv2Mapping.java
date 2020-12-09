@@ -18,6 +18,9 @@ public class Modelv2Mapping {
 	}
 	public static void save() {
 		Persistence.save(d);
+//		for(DungeonMap m:d.maps) {
+//			Persistence.saveMap(m);
+//		}
 	}
 	 public static Dungeon getDungeon() {
 		    if (d == null) {

@@ -1,6 +1,7 @@
 package modelv2;
 
 import java.awt.Dimension;
+import java.util.ArrayList;
 
 import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
@@ -13,48 +14,43 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 public class Model2Page extends JFrame {
-	private JComboBox<Map> maps = new JComboBox<>();
-	int x1,x2,y1,y2;
-	private JLabel x1Label = new JLabel("x1");
-	private JLabel x2Label = new JLabel("x2");
-	private JLabel y1Label = new JLabel("y1");
-	private JLabel y2Label = new JLabel("y2");
-	private JTextField x1Text = new JTextField();
-	private JTextField x2Text = new JTextField();
-	private JTextField y1Text = new JTextField();
-	private JTextField y2Text = new JTextField();
+	private JComboBox<DungeonMap> maps = new JComboBox<>();
 	private JTextField mapName = new JTextField();
 	private Model2View mapView = new Model2View(this);
 	
 	private JButton newMapButton = new JButton("New Map");
-	private JButton newNodeButton = new JButton("New Node");
-	private JButton newEdgeButton = new JButton("New Edge");
-	private JButton moveNodeButton = new JButton("Move Node");
 	private JButton deleteMapButton = new JButton("Delete Map");
 	private JButton deleteItemButton = new JButton("Delete SelectedItem");
+	private JButton editButton = new JButton("Edit SelectedItem");
 	
 	private GraphElement lastSelectedItem;
 	
+	private ArrayList<DescriptionDialog> openDescriptions = new ArrayList<>();
 	
 	private JRadioButton mouseDefault = new JRadioButton("Select Items", true);
 	private JRadioButton mouseAddNodes = new JRadioButton("Add Nodes", false);
 	private JRadioButton mouseAddEdges = new JRadioButton("Add Edges", false);
+	private JRadioButton mouseEdit = new JRadioButton("Edit", false);
 	private ButtonGroup mouseBehaviour = new ButtonGroup();
 	
+	private JLabel itemDetails = new JLabel();
 	
+	private JLabel disMulLabel = new JLabel("distance multiplier");
+	private JTextField disMulField = new JTextField();
 	
 	public Model2Page() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mouseBehaviour.add(mouseDefault);
 		mouseBehaviour.add(mouseAddNodes);
 		mouseBehaviour.add(mouseAddEdges);
+		mouseBehaviour.add(mouseEdit);
 		
 		
 		listeners();
 		menu();
 		
 		refreshMaps();
-		Map m = maps.getItemAt(maps.getSelectedIndex());
+		DungeonMap m = maps.getItemAt(maps.getSelectedIndex());
 		refreshMap(m);
 	}
 	
@@ -62,37 +58,8 @@ public class Model2Page extends JFrame {
 		newMapButton.addActionListener(new java.awt.event.ActionListener() {
 			@Override
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				Modelv2Mapping.getDungeon().addMap((new Map(mapName.getText())));
+				Modelv2Mapping.getDungeon().addMap((mapName.getText()));
 				refreshMaps();
-			}
-		});
-		newNodeButton.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				if (maps == null) {
-					return;
-				}
-				maps.getItemAt(maps.getSelectedIndex()).addNode(Integer.parseInt(x1Text.getText()), Integer.parseInt(y1Text.getText()));
-				refresh();
-			}
-		});
-		newEdgeButton.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				Map m = maps.getItemAt(maps.getSelectedIndex());
-				Node n1 = m.getNodeAt(Integer.parseInt(x1Text.getText()), Integer.parseInt(y1Text.getText()));
-				Node n2 = m.getNodeAt(Integer.parseInt(x2Text.getText()), Integer.parseInt(y2Text.getText()));
-				m.connectNodes(n1,n2);
-				refresh();
-			}
-		});
-		moveNodeButton.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				Map m = maps.getItemAt(maps.getSelectedIndex());
-				Node n = m.getNodeAt(Integer.parseInt(x1Text.getText()), Integer.parseInt(y1Text.getText()));
-				n.moveNode(Integer.parseInt(x2Text.getText()), Integer.parseInt(y2Text.getText()));
-				refresh();
 			}
 		});
 		mouseAddNodes.addActionListener(new java.awt.event.ActionListener() {
@@ -113,17 +80,23 @@ public class Model2Page extends JFrame {
 				setMode();
 			}
 		});
+		mouseEdit.addActionListener(new java.awt.event.ActionListener() {
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				setMode();
+			}
+		});
 		maps.addActionListener(new java.awt.event.ActionListener() {
 			@Override
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				Map m = maps.getItemAt(maps.getSelectedIndex());
+				DungeonMap m = maps.getItemAt(maps.getSelectedIndex());
 				refreshMap(m);
 			}
 		});
 		deleteMapButton.addActionListener(new java.awt.event.ActionListener() {
 			@Override
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				Map m = maps.getItemAt(maps.getSelectedIndex());
+				DungeonMap m = maps.getItemAt(maps.getSelectedIndex());
 				Modelv2Mapping.getDungeon().getMaps().remove(m);
 				refreshMaps();
 				m = maps.getItemAt(maps.getSelectedIndex());
@@ -133,11 +106,19 @@ public class Model2Page extends JFrame {
 		deleteItemButton.addActionListener(new java.awt.event.ActionListener() {
 			@Override
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				Map m = maps.getItemAt(maps.getSelectedIndex());
+				DungeonMap m = maps.getItemAt(maps.getSelectedIndex());
 				m.removeItem(lastSelectedItem);
 				lastSelectedItem = null;
+				refresh();
 			}
 		});
+		editButton.addActionListener(new java.awt.event.ActionListener() {
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				edit();
+			}
+		});
+		TextListener.addChangeListener(disMulField, e->{DungeonMap m = maps.getItemAt(maps.getSelectedIndex());m.distanceMultiplier = Double.parseDouble(disMulField.getText()) ;pack();});
 	}
 	
 
@@ -152,32 +133,26 @@ public class Model2Page extends JFrame {
 						.addComponent(maps)
 						.addComponent(mapName)
 						.addComponent(newMapButton)
+						.addComponent(deleteMapButton)
 				)
 				.addGroup(layout.createSequentialGroup()
 						.addComponent(mapView)
 						.addGroup(layout.createParallelGroup()
-								.addComponent(x1Label)
-								.addComponent(y1Label)
-						)
-						.addGroup(layout.createParallelGroup()
-								.addComponent(x1Text)
-								.addComponent(y1Text)
-								.addComponent(newNodeButton)
-								.addComponent(mouseDefault)
-								.addComponent(deleteItemButton)
-						)
-						.addGroup(layout.createParallelGroup()
-								.addComponent(x2Label)
-								.addComponent(y2Label)
-								.addComponent(moveNodeButton)
-								.addComponent(mouseAddNodes)
-						)
-						.addGroup(layout.createParallelGroup()
-								.addComponent(x2Text)
-								.addComponent(y2Text)
-								.addComponent(newEdgeButton)
-								.addComponent(mouseAddEdges)
-								.addComponent(deleteMapButton)
+								.addGroup(layout.createSequentialGroup()
+										.addComponent(mouseDefault)
+										.addComponent(mouseAddNodes)
+										.addComponent(mouseAddEdges)
+										.addComponent(mouseEdit)
+								)
+								.addGroup(layout.createSequentialGroup()
+										.addComponent(editButton)
+										.addComponent(deleteItemButton)
+								)
+								.addComponent(itemDetails)
+								.addGroup(layout.createSequentialGroup()
+										.addComponent(disMulLabel)
+										.addComponent(disMulField)
+								)
 						)
 				)
 		);
@@ -186,43 +161,33 @@ public class Model2Page extends JFrame {
 						.addComponent(maps)
 						.addComponent(mapName)
 						.addComponent(newMapButton)
+						.addComponent(deleteMapButton)
 				)
 				.addGroup(layout.createParallelGroup()
 						.addComponent(mapView)
 						.addGroup(layout.createSequentialGroup()
 								.addGroup(layout.createParallelGroup()
-										.addComponent(x1Label)
-										.addComponent(x1Text)
-										.addComponent(x2Label)
-										.addComponent(x2Text)
-								)
-								.addGroup(layout.createParallelGroup()
-										.addComponent(y1Label)
-										.addComponent(y1Text)
-										.addComponent(y2Label)
-										.addComponent(y2Text)
-								)
-								.addGroup(layout.createParallelGroup()
-										.addComponent(newNodeButton)
-										.addComponent(moveNodeButton)
-										.addComponent(newEdgeButton)
-								)
-								.addGroup(layout.createParallelGroup()
 										.addComponent(mouseDefault)
 										.addComponent(mouseAddNodes)
 										.addComponent(mouseAddEdges)
+										.addComponent(mouseEdit)
 								)
 								.addGroup(layout.createParallelGroup()
+										.addComponent(editButton)
 										.addComponent(deleteItemButton)
-										.addComponent(deleteMapButton)
+								)
+								.addComponent(itemDetails)
+								.addGroup(layout.createParallelGroup()
+										.addComponent(disMulLabel)
+										.addComponent(disMulField)
 								)
 						)
 				)
 		);
-		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {newNodeButton, moveNodeButton, newEdgeButton, x1Text, x2Text, y1Text, y2Text, mouseAddNodes, mouseDefault, mouseAddEdges});
-		layout.linkSize(SwingConstants.VERTICAL, new java.awt.Component[] {x1Label, x1Text, x2Label, x2Text, y1Label, y1Text, y2Label, y2Text});
+		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {mouseAddNodes, mouseDefault, mouseAddEdges});
+//		layout.linkSize(SwingConstants.VERTICAL, new java.awt.Component[] {});
 		layout.linkSize(SwingConstants.VERTICAL, new java.awt.Component[] {maps,mapName,newMapButton});
-		
+		layout.linkSize(SwingConstants.VERTICAL, new java.awt.Component[] {disMulLabel,disMulField});
 		mapView.setMinimumSize(new Dimension(100, 100));
 		mapView.setPreferredSize(new Dimension(700,700));
 		pack();
@@ -230,7 +195,7 @@ public class Model2Page extends JFrame {
 	}
 	
 	
-	void refreshMap(Map m) {
+	void refreshMap(DungeonMap m) {
 		if (mapView.m!=m) {
 			mapView.set(m);
 			lastSelectedItem=null;
@@ -247,18 +212,28 @@ public class Model2Page extends JFrame {
 		} else if (mouseAddEdges.isSelected()) {
 			lastSelectedItem = null;
 			mapView.ml.mode=Mouse.ADD_EDGE;
+		} else if (mouseEdit.isSelected()) {
+			mapView.ml.mode=Mouse.EDIT;
 		}
 	}
 	
-	private void refresh() {
+	void refresh() {
 		mapView.refresh();
+		for(DescriptionDialog d: getOpenDescriptions()) {
+			d.refresh();
+		}
+		DungeonMap m = maps.getItemAt(maps.getSelectedIndex());
+		if (m!=null) {
+			disMulField.setText(""+m.distanceMultiplier);
+		}
+		
 		Modelv2Mapping.save();
 		// show information of selected item
 	}
 	
 	private void refreshMaps() {
 		maps.removeAllItems();
-		for(Map m:Modelv2Mapping.getDungeon().getMaps()) {
+		for(DungeonMap m:Modelv2Mapping.getDungeon().getMaps()) {
 			maps.addItem(m);
 		}
 		refresh();
@@ -266,10 +241,26 @@ public class Model2Page extends JFrame {
 	
 	void setLastSelected(GraphElement e) {
 		this.lastSelectedItem = e;
+		if (lastSelectedItem==null) {
+			itemDetails.setText("");
+		} else {
+			itemDetails.setText(lastSelectedItem.toString());
+		}
 	}
 	GraphElement getLastSelected() {
 		return lastSelectedItem;
 	}
 	
+	public ArrayList<DescriptionDialog> getOpenDescriptions() {
+		if (openDescriptions == null) {
+			openDescriptions = new ArrayList<>();
+		}
+		return openDescriptions;
+	}
 	
+	private void edit() {
+		DescriptionDialog d = new DescriptionDialog(lastSelectedItem, this);
+		d.setVisible(true);
+		getOpenDescriptions().add(d);
+	}
 }

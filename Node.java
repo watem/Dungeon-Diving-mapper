@@ -1,5 +1,6 @@
 package modelv2;
 
+import java.io.Serializable;
 import java.util.HashSet;
 
 public class Node extends GraphElement {
@@ -17,20 +18,9 @@ public class Node extends GraphElement {
 		return coords;
 	}
 
-//	public Node(Edge edge, Coords coords) {
-//		super();
-//		edges = new HashSet<>();
-//		edges.add(edge);
-//		this.coords = coords;
-//	}
-//
-//	public Node(Coords coords) {
-//		super();
-//		this.coords = coords;
-//	}
 	
-	public Node(int x, int y) {
-		super();
+	public Node(int x, int y, DungeonMap m) {
+		super(m);
 		coords = new Coords(x,y);
 	}
 	public HashSet<Edge> getEdges() {

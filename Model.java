@@ -3,15 +3,15 @@ package modelv2;
 import java.util.HashSet;
 
 public class Model {
-	HashSet<Map> maps;
+	HashSet<DungeonMap> maps;
 	
-	public Map createNewMap(String name) {
-		Map m = new Map(name);
+	public DungeonMap createNewMap(String name) {
+		DungeonMap m = new DungeonMap(name);
 		getMaps().add(m);
 		return m;
 	}
 	
-	private HashSet<Map> getMaps() {
+	private HashSet<DungeonMap> getMaps() {
 		if (maps==null) {
 			maps = new HashSet<>();
 		}

@@ -8,6 +8,7 @@ public class Mouse implements MouseListener, MouseMotionListener {
 	public static final int SELECT = 0;
 	public static final int ADD_NODE = 1;
 	public static final int ADD_EDGE = 2;
+	public static final int EDIT = 3;
 	
 	private Node draggedNode;
 	
@@ -20,33 +21,50 @@ public class Mouse implements MouseListener, MouseMotionListener {
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		// TODO Auto-generated method stub
+		System.out.println(mode);
 		System.out.println("X:"+e.getX()+" Y:"+e.getY());
 		System.out.println(parent.getElementAt(e.getPoint()));
 		
 		if (mode==ADD_NODE) {
 			parent.m.addNode(e.getX(), e.getY());
-			parent.refresh();
+			parent.parent.refresh();
 		} else if (mode==SELECT) {
-			parent.parent.setLastSelected(parent.getElementAt(e.getPoint()));
+			GraphElement ge = parent.getElementAt(e.getPoint());
+			if (ge==null) {
+				return;
+			}
+			parent.parent.setLastSelected(ge);
 		} else if (mode==ADD_EDGE) {
 			System.out.println("edges mode");
 			GraphElement lastSelected = parent.parent.getLastSelected();
 			System.out.println("last "+lastSelected);
 			if (lastSelected!=null&&lastSelected instanceof Node) {
 				GraphElement newSelected = parent.getElementAt(e.getPoint());
+				if (newSelected==null) {
+					parent.parent.setLastSelected(null);
+				}
 				System.out.println("new "+newSelected);
 				if (newSelected instanceof Node) {
 					System.out.println("new edge being created");
 					parent.m.connectNodes((Node)lastSelected, (Node)newSelected);
-					parent.parent.setLastSelected(null);
+					parent.parent.setLastSelected(newSelected);
+					parent.parent.refresh();
 				}
 			} else {
 				GraphElement newSelected = parent.getElementAt(e.getPoint());
 				if (newSelected instanceof Node) {
 					parent.parent.setLastSelected(newSelected);
-					parent.refresh();
 				}
 			}
+		} else if (mode==EDIT) {
+			GraphElement ge = parent.getElementAt(e.getPoint());
+			if (ge==null) {
+				return;
+			}
+			parent.parent.setLastSelected(ge);
+			DescriptionDialog d = new DescriptionDialog(ge, parent.parent);
+			d.setVisible(true);
+			parent.parent.getOpenDescriptions().add(d);
 		}
 	}
 
@@ -91,7 +109,7 @@ public class Mouse implements MouseListener, MouseMotionListener {
 		}
 //		System.out.println("dragging "+draggedNode);
 		draggedNode.moveNode(e.getX(), e.getY());
-		parent.refresh();
+		parent.parent.refresh();
 		
 	}
 

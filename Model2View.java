@@ -25,7 +25,7 @@ public class Model2View extends JPanel {
 	
 	
 	Model2Page parent;
-	Map m;
+	DungeonMap m;
 	double r = 4.;
 	int scale = 1;
 	int epsilon = 2;
@@ -34,7 +34,7 @@ public class Model2View extends JPanel {
 	public Model2View(Model2Page parent) {
 		this.parent = parent;
 	}
-	public void set(Map m) {
+	public void set(DungeonMap m) {
 		this.m = m;
 		addMouseListener(ml);
 		addMouseMotionListener(ml);
@@ -74,27 +74,26 @@ public class Model2View extends JPanel {
 	    if (m!=null) {
 		    HashSet<Node> nodeSet = m.getNodes();
 		    HashSet<Edge> edgeSet = m.getEdges();
-		    if (nodeSet!=null) {
-			    for(Node n:m.getNodes()) {
-			    	Coords pos = n.getCoords();
-			    	if (pos.x+r>0 && pos.y+r>0 && pos.x-r<this.getWidth() && pos.y-r<this.getHeight()) {
-			    		g2d.fill(new Ellipse2D.Double(scale*pos.x-r, scale*pos.y-r, 2*r, 2*r));
-			    	}
-			    	
-			    }
-		    }
 		    if (edgeSet!=null) {
 			    for(Edge e:m.getEdges()) {
 			    	Coords pos1 = e.node1.getCoords();
 			    	Coords pos2 = e.node2.getCoords();
 			    	if ((pos1.x+r>0 && pos1.y+r>0 && pos1.x-r<this.getWidth() && pos1.y-r<this.getHeight())||(pos2.x+r>0 && pos2.y+r>0 && pos2.x-r<this.getWidth() && pos2.y-r<this.getHeight())) {
+			    		g2d.setColor(e.getDescription().colour);
 			    		g2d.drawLine(scale*pos1.x,scale*pos1.y,scale*pos2.x,scale*pos2.y);
 			    	}
 			    }
 		    }
+		    if (nodeSet!=null) {
+			    for(Node n:m.getNodes()) {
+			    	Coords pos = n.getCoords();
+			    	if (pos.x+r>0 && pos.y+r>0 && pos.x-r<this.getWidth() && pos.y-r<this.getHeight()) {
+			    		g2d.setColor(n.getDescription().colour);
+			    		g2d.fill(new Ellipse2D.Double(scale*pos.x-r, scale*pos.y-r, 2*r, 2*r));
+			    	}
+			    }
+		    }
 	    }
-	    
-	    
 	}
 	
 	
