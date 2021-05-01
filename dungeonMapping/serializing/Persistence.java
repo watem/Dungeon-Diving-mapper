@@ -1,9 +1,9 @@
-package modelv2.serializing;
+package dungeonMapping.serializing;
 
 
-import modelv2.Dungeon;
-import modelv2.DungeonMap;
-import modelv2.Modelv2Mapping;
+import dungeonMapping.Dungeon;
+import dungeonMapping.DungeonMap;
+import dungeonMapping.Modelv2Mapping;
 
 public class Persistence {
 

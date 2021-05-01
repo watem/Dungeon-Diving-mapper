@@ -1,4 +1,4 @@
-package modelv2;
+package dungeonMapping;
 
 import java.beans.PropertyChangeEvent;
 import java.util.Objects;

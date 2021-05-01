@@ -1,4 +1,4 @@
-package modelv2;
+package dungeonMapping;
 
 import java.util.HashSet;
 
