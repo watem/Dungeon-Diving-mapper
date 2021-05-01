@@ -3,8 +3,6 @@ package modelv2;
 import java.awt.Color;
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 
 public class GraphElement implements Serializable{
 

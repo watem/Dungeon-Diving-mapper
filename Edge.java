@@ -1,8 +1,5 @@
 package modelv2;
 
-import java.io.Serializable;
-import java.util.HashSet;
-
 public class Edge extends GraphElement {
 	Node node1;
 	Node node2;

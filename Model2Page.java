@@ -6,13 +6,19 @@ import java.util.ArrayList;
 import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+import modelv2.serializing.Persistence;
+import modelv2.serializing.PersistenceObjectStream;
+
+@SuppressWarnings("serial")
 public class Model2Page extends JFrame {
 	private JComboBox<DungeonMap> maps = new JComboBox<>();
 	private JTextField mapName = new JTextField();
@@ -37,6 +43,14 @@ public class Model2Page extends JFrame {
 	
 	private JLabel disMulLabel = new JLabel("distance multiplier");
 	private JTextField disMulField = new JTextField();
+	
+	private JButton saveAsButton = new JButton("save as");
+	private JButton loadButton = new JButton("load");
+	
+	private JButton zoomIn = new JButton("Zoom +");
+	private JButton zoomOut = new JButton("Zoom -");
+	
+	private JCheckBox nodesShownButton = new JCheckBox("Show nodes?", true);
 	
 	public Model2Page() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -118,7 +132,39 @@ public class Model2Page extends JFrame {
 				edit();
 			}
 		});
-		TextListener.addChangeListener(disMulField, e->{DungeonMap m = maps.getItemAt(maps.getSelectedIndex());m.distanceMultiplier = Double.parseDouble(disMulField.getText()) ;pack();});
+		TextListener.addChangeListener(disMulField, e->{DungeonMap m = maps.getItemAt(maps.getSelectedIndex());m.distanceMultiplier = Double.parseDouble(disMulField.getText());});
+		saveAsButton.addActionListener(new java.awt.event.ActionListener() {
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				saveAs();
+			}
+		});
+		loadButton.addActionListener(new java.awt.event.ActionListener() {
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				loadAs();
+			}
+		});
+		
+		zoomIn.addActionListener(new java.awt.event.ActionListener() {
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				mapView.zoomIn();
+			}
+		});
+		zoomOut.addActionListener(new java.awt.event.ActionListener() {
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				mapView.zoomOut();
+			}
+		});
+		
+		nodesShownButton.addActionListener(new java.awt.event.ActionListener() {
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				mapView.refresh();
+			}
+		});
 	}
 	
 
@@ -134,6 +180,8 @@ public class Model2Page extends JFrame {
 						.addComponent(mapName)
 						.addComponent(newMapButton)
 						.addComponent(deleteMapButton)
+						.addComponent(saveAsButton)
+						.addComponent(loadButton)
 				)
 				.addGroup(layout.createSequentialGroup()
 						.addComponent(mapView)
@@ -148,10 +196,15 @@ public class Model2Page extends JFrame {
 										.addComponent(editButton)
 										.addComponent(deleteItemButton)
 								)
+								.addComponent(nodesShownButton)
 								.addComponent(itemDetails)
 								.addGroup(layout.createSequentialGroup()
 										.addComponent(disMulLabel)
 										.addComponent(disMulField)
+								)
+								.addGroup(layout.createSequentialGroup()
+										.addComponent(zoomIn)
+										.addComponent(zoomOut)
 								)
 						)
 				)
@@ -162,6 +215,8 @@ public class Model2Page extends JFrame {
 						.addComponent(mapName)
 						.addComponent(newMapButton)
 						.addComponent(deleteMapButton)
+						.addComponent(saveAsButton)
+						.addComponent(loadButton)
 				)
 				.addGroup(layout.createParallelGroup()
 						.addComponent(mapView)
@@ -176,10 +231,15 @@ public class Model2Page extends JFrame {
 										.addComponent(editButton)
 										.addComponent(deleteItemButton)
 								)
+								.addComponent(nodesShownButton)
 								.addComponent(itemDetails)
 								.addGroup(layout.createParallelGroup()
 										.addComponent(disMulLabel)
 										.addComponent(disMulField)
+								)
+								.addGroup(layout.createParallelGroup()
+										.addComponent(zoomIn)
+										.addComponent(zoomOut)
 								)
 						)
 				)
@@ -188,6 +248,8 @@ public class Model2Page extends JFrame {
 //		layout.linkSize(SwingConstants.VERTICAL, new java.awt.Component[] {});
 		layout.linkSize(SwingConstants.VERTICAL, new java.awt.Component[] {maps,mapName,newMapButton});
 		layout.linkSize(SwingConstants.VERTICAL, new java.awt.Component[] {disMulLabel,disMulField});
+		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {disMulLabel,disMulField});
+		
 		mapView.setMinimumSize(new Dimension(100, 100));
 		mapView.setPreferredSize(new Dimension(700,700));
 		pack();
@@ -246,6 +308,7 @@ public class Model2Page extends JFrame {
 		} else {
 			itemDetails.setText(lastSelectedItem.toString());
 		}
+		refresh();
 	}
 	GraphElement getLastSelected() {
 		return lastSelectedItem;
@@ -262,5 +325,38 @@ public class Model2Page extends JFrame {
 		DescriptionDialog d = new DescriptionDialog(lastSelectedItem, this);
 		d.setVisible(true);
 		getOpenDescriptions().add(d);
+	}
+	private void saveAs() {
+		String s = (String)JOptionPane.showInputDialog(
+                this,
+                "name of save file",
+                "save as",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                null,
+                "dungeon.data");
+		Persistence.setFilename(s);
+		PersistenceObjectStream.setFilename(s);
+		Modelv2Mapping.save();
+	}
+	private void loadAs() {
+		String s = (String)JOptionPane.showInputDialog(
+                this,
+                "name of save file",
+                "load",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                null,
+                "dungeon.data");
+		if (s==null) {
+			return;
+		}
+		Persistence.setFilename(s);
+		PersistenceObjectStream.setFilename(s);
+		Modelv2Mapping.resetDungeon();
+		refresh();
+	}
+	public boolean areNodesShown() {
+		return nodesShownButton.isSelected();
 	}
 }

@@ -1,8 +1,11 @@
 package modelv2;
 
+import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+
+import javax.swing.SwingUtilities;
 
 public class Mouse implements MouseListener, MouseMotionListener {
 	public static final int SELECT = 0;
@@ -12,34 +15,47 @@ public class Mouse implements MouseListener, MouseMotionListener {
 	
 	private Node draggedNode;
 	
+	private int dragScreenX, dragScreenY; 
+	
 	Model2View parent;
 	int mode = SELECT;
 	
 	public Mouse(Model2View p) {
 		parent = p;
 	}
+	public void setParent(Model2View p) {
+		parent = p;
+	}
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		// TODO Auto-generated method stub
 		System.out.println(mode);
-		System.out.println("X:"+e.getX()+" Y:"+e.getY());
-		System.out.println(parent.getElementAt(e.getPoint()));
+		System.out.println("Xl:"+parent.invert(e.getPoint()).x+" Yl:"+parent.invert(e.getPoint()).y);
+		System.out.println("Xp:"+e.getX()+" Yp:"+e.getY());
+		System.out.println(parent.getElementAt(parent.invert(e.getPoint())));
 		
 		if (mode==ADD_NODE) {
-			parent.m.addNode(e.getX(), e.getY());
+			Point p = parent.invert(e.getPoint());
+			parent.m.addNode(p.x, p.y);
 			parent.parent.refresh();
 		} else if (mode==SELECT) {
-			GraphElement ge = parent.getElementAt(e.getPoint());
+			GraphElement ge = parent.getElementAt(parent.invert(e.getPoint()));
 			if (ge==null) {
 				return;
 			}
+			
 			parent.parent.setLastSelected(ge);
+			if (SwingUtilities.isRightMouseButton(e)) {
+				DescriptionDialog d = new DescriptionDialog(ge, parent.parent);
+				d.setVisible(true);
+				parent.parent.getOpenDescriptions().add(d);
+			}
 		} else if (mode==ADD_EDGE) {
 			System.out.println("edges mode");
 			GraphElement lastSelected = parent.parent.getLastSelected();
 			System.out.println("last "+lastSelected);
 			if (lastSelected!=null&&lastSelected instanceof Node) {
-				GraphElement newSelected = parent.getElementAt(e.getPoint());
+				GraphElement newSelected = parent.getElementAt(parent.invert(e.getPoint()));
 				if (newSelected==null) {
 					parent.parent.setLastSelected(null);
 				}
@@ -51,13 +67,13 @@ public class Mouse implements MouseListener, MouseMotionListener {
 					parent.parent.refresh();
 				}
 			} else {
-				GraphElement newSelected = parent.getElementAt(e.getPoint());
+				GraphElement newSelected = parent.getElementAt(parent.invert(e.getPoint()));
 				if (newSelected instanceof Node) {
 					parent.parent.setLastSelected(newSelected);
 				}
 			}
 		} else if (mode==EDIT) {
-			GraphElement ge = parent.getElementAt(e.getPoint());
+			GraphElement ge = parent.getElementAt(parent.invert(e.getPoint()));
 			if (ge==null) {
 				return;
 			}
@@ -82,35 +98,50 @@ public class Mouse implements MouseListener, MouseMotionListener {
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		if (mode!=SELECT) {
-			draggedNode = null;
-			return;
-		}
-		GraphElement i = parent.getElementAt(e.getPoint());
-		if (!(i instanceof Node)) {
-			draggedNode = null;
-			return;
-		}
-		draggedNode=(Node)i;
+		if (SwingUtilities.isLeftMouseButton(e)) {
+			if (mode!=SELECT) {
+				draggedNode = null;
+				return;
+			}
+			GraphElement i = parent.getElementAt(parent.invert(e.getPoint()));
+			if (!(i instanceof Node)) {
+				draggedNode = null;
+				return;
+			}
+			draggedNode=(Node)i;
 //		System.out.println("Going to drag"+draggedNode);
+		} else if (SwingUtilities.isRightMouseButton(e)) {
+			Point p = parent.invert(e.getPoint());
+			dragScreenX = p.x;
+			dragScreenY = p.y;
+			System.out.println("topleft: "+parent.topLeftX+" "+parent.topLeftY);
+			System.out.println("dx:"+p.x+" dy:"+p.y);
+		}
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		// TODO Auto-generated method stub
-
+		System.out.println("topleft: "+parent.topLeftX+" "+parent.topLeftY);
+		parent.refresh();
 	}
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
-//		System.out.println("mouse dragged");
-		if(mode!=SELECT||draggedNode == null) {
-			return;
+		if (SwingUtilities.isLeftMouseButton(e)) {
+	//		System.out.println("mouse dragged");
+			if(mode!=SELECT||draggedNode == null) {
+				return;
+			}
+	//		System.out.println("dragging "+draggedNode);
+			Point p = parent.invert(e.getPoint());
+			draggedNode.moveNode(p.x, p.y);
+			parent.parent.refresh();
+		} else if (SwingUtilities.isRightMouseButton(e)) {
+			parent.topLeftX =(int) ((dragScreenX - e.getX())/parent.scale);
+			parent.topLeftY =(int) ((dragScreenY - e.getY())/parent.scale);
+			parent.refresh();
 		}
-//		System.out.println("dragging "+draggedNode);
-		draggedNode.moveNode(e.getX(), e.getY());
-		parent.parent.refresh();
-		
 	}
 
 	@Override
@@ -118,5 +149,4 @@ public class Mouse implements MouseListener, MouseMotionListener {
 		// TODO Auto-generated method stub
 		
 	}
-
 }

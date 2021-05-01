@@ -1,6 +1,5 @@
 package modelv2;
 
-import java.io.Serializable;
 import java.util.HashSet;
 
 public class Node extends GraphElement {

@@ -3,9 +3,6 @@ package modelv2;
 import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.util.Objects;
-
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
@@ -15,16 +12,9 @@ import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.text.Document;
-import javax.swing.text.JTextComponent;
-
 import modelv2.GraphElement.Description;
 
+@SuppressWarnings("serial")
 public class DescriptionDialog extends JDialog {
 
 	JButton colourPicker = new JButton("Colour");

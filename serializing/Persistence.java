@@ -2,14 +2,15 @@ package modelv2.serializing;
 
 
 import modelv2.Dungeon;
+import modelv2.DungeonMap;
 import modelv2.Modelv2Mapping;
 
 public class Persistence {
 
-  private static String filename = "DemoBlock223WaitTime010.data";
+  private static String filename = "dungeon.data";
 
   public static void save(Dungeon dungeon){
-    PersistenceObjectStream.serialize(dungeon);
+//    PersistenceObjectStream.serialize(dungeon);
   }
 
   public static Dungeon load() {
@@ -29,4 +30,8 @@ public class Persistence {
   public static void setFilename(String newFilename) {
 		filename = newFilename;
 	}
+  
+  public static void saveMap(DungeonMap m) {
+	  
+  }
 }

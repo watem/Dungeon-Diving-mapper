@@ -26,11 +26,13 @@ public class Modelv2Mapping {
 		    if (d == null) {
 		      // load model
 		      d = Persistence.load();
+		      System.out.println("load done");
+//		      Persistence.save(d);
 		    }
 		    return d;
 		  }
 
-		  public static Dungeon resetBlock223(){
+		  public static Dungeon resetDungeon(){
 		    d = Persistence.load();
 		    return d;
 		  }

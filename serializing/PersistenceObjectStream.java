@@ -7,28 +7,29 @@ import java.io.ObjectOutputStream;
 
 public class PersistenceObjectStream {
 
-	private static String filename = "data.dungeon";
+	public static String filename = "data.dungeon";
 
 	public static void serialize(Object object) {
-		FileOutputStream fileOut;
-		try {
-			fileOut = new FileOutputStream(filename);
-			ObjectOutputStream out = new ObjectOutputStream(fileOut);
-			out.writeObject(object);
-			out.close();
-			fileOut.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new RuntimeException("Could not save data to file '" + filename + "'.");
-		}
+//		FileOutputStream fileOut;
+//		try {
+//			fileOut = new FileOutputStream(filename);
+//			ObjectOutputStream out = new ObjectOutputStream(fileOut);
+//			out.writeObject(object);
+//			out.close();
+//			fileOut.close();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			throw new RuntimeException("Could not save data to file '" + filename + "'.");
+//		}
 
 	}
 
 	public static Object deserialize() {
 		Object o = null;
 		ObjectInputStream in;
+		FileInputStream fileIn;
 		try {
-			FileInputStream fileIn = new FileInputStream(filename);
+			fileIn = new FileInputStream(filename);
 			in = new ObjectInputStream(fileIn);
 			o = in.readObject();
 			in.close();

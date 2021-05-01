@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import java.util.List;
-
 
 public class DungeonMap implements Serializable {
 	private static final long serialVersionUID = -7953540481645760148L;
