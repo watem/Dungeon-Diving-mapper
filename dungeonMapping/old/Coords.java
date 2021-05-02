@@ -1,4 +1,4 @@
-package dungeonMapping;
+package dungeonMapping.old;
 
 import java.io.Serializable;
 

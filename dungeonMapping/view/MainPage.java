@@ -1,4 +1,4 @@
-package dungeonMapping;
+package dungeonMapping.view;
 
 import java.awt.Dimension;
 import java.util.ArrayList;
@@ -15,14 +15,16 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+import dungeonMapping.application.MappingApplication;
+import dungeonMapping.controller.MapController;
+import dungeonMapping.model.DungeonMap;
+import dungeonMapping.model.GraphElement;
 import dungeonMapping.serializing.Persistence;
 import dungeonMapping.serializing.PersistenceObjectStream;
 
 @SuppressWarnings("serial")
-public class Model2Page extends JFrame {
-	private JComboBox<DungeonMap> maps = new JComboBox<>();
-	private JTextField mapName = new JTextField();
-	private Model2View mapView = new Model2View(this);
+public class MainPage extends JFrame {
+	private MapView mapView = new MapView(this);
 	
 	private JButton newMapButton = new JButton("New Map");
 	private JButton deleteMapButton = new JButton("Delete Map");
@@ -44,6 +46,7 @@ public class Model2Page extends JFrame {
 	private JLabel disMulLabel = new JLabel("distance multiplier");
 	private JTextField disMulField = new JTextField();
 	
+	private JButton saveButton = new JButton("save");
 	private JButton saveAsButton = new JButton("save as");
 	private JButton loadButton = new JButton("load");
 	
@@ -52,7 +55,7 @@ public class Model2Page extends JFrame {
 	
 	private JCheckBox nodesShownButton = new JCheckBox("Show nodes?", true);
 	
-	public Model2Page() {
+	public MainPage() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mouseBehaviour.add(mouseDefault);
 		mouseBehaviour.add(mouseAddNodes);
@@ -63,8 +66,7 @@ public class Model2Page extends JFrame {
 		listeners();
 		menu();
 		
-		refreshMaps();
-		DungeonMap m = maps.getItemAt(maps.getSelectedIndex());
+		DungeonMap m = MappingApplication.resetDungeon();
 		refreshMap(m);
 	}
 	
@@ -72,8 +74,7 @@ public class Model2Page extends JFrame {
 		newMapButton.addActionListener(new java.awt.event.ActionListener() {
 			@Override
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				Modelv2Mapping.getDungeon().addMap((mapName.getText()));
-				refreshMaps();
+				newMap();
 			}
 		});
 		mouseAddNodes.addActionListener(new java.awt.event.ActionListener() {
@@ -100,27 +101,16 @@ public class Model2Page extends JFrame {
 				setMode();
 			}
 		});
-		maps.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				DungeonMap m = maps.getItemAt(maps.getSelectedIndex());
-				refreshMap(m);
-			}
-		});
 		deleteMapButton.addActionListener(new java.awt.event.ActionListener() {
 			@Override
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				DungeonMap m = maps.getItemAt(maps.getSelectedIndex());
-				Modelv2Mapping.getDungeon().getMaps().remove(m);
-				refreshMaps();
-				m = maps.getItemAt(maps.getSelectedIndex());
-				refreshMap(m);
+				deleteMap();
 			}
 		});
 		deleteItemButton.addActionListener(new java.awt.event.ActionListener() {
 			@Override
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				DungeonMap m = maps.getItemAt(maps.getSelectedIndex());
+				DungeonMap m = MappingApplication.getDungeon();
 				m.removeItem(lastSelectedItem);
 				lastSelectedItem = null;
 				refresh();
@@ -132,11 +122,20 @@ public class Model2Page extends JFrame {
 				edit();
 			}
 		});
-		TextListener.addChangeListener(disMulField, e->{DungeonMap m = maps.getItemAt(maps.getSelectedIndex());m.distanceMultiplier = Double.parseDouble(disMulField.getText());});
+		TextListener.addChangeListener(disMulField, e->{
+			DungeonMap m = MappingApplication.getDungeon();
+			m.setDistanceMultiplier(Double.parseDouble(disMulField.getText()));
+		});
 		saveAsButton.addActionListener(new java.awt.event.ActionListener() {
 			@Override
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				saveAs();
+			}
+		});
+		saveButton.addActionListener(new java.awt.event.ActionListener() {
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				MappingApplication.save();
 			}
 		});
 		loadButton.addActionListener(new java.awt.event.ActionListener() {
@@ -176,10 +175,9 @@ public class Model2Page extends JFrame {
 		
 		layout.setHorizontalGroup(layout.createParallelGroup()
 				.addGroup(layout.createSequentialGroup()
-						.addComponent(maps)
-						.addComponent(mapName)
 						.addComponent(newMapButton)
 						.addComponent(deleteMapButton)
+						.addComponent(saveButton)
 						.addComponent(saveAsButton)
 						.addComponent(loadButton)
 				)
@@ -211,10 +209,9 @@ public class Model2Page extends JFrame {
 		);
 		layout.setVerticalGroup(layout.createSequentialGroup()
 				.addGroup(layout.createParallelGroup()
-						.addComponent(maps)
-						.addComponent(mapName)
 						.addComponent(newMapButton)
 						.addComponent(deleteMapButton)
+						.addComponent(saveButton)
 						.addComponent(saveAsButton)
 						.addComponent(loadButton)
 				)
@@ -246,7 +243,7 @@ public class Model2Page extends JFrame {
 		);
 		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {mouseAddNodes, mouseDefault, mouseAddEdges});
 //		layout.linkSize(SwingConstants.VERTICAL, new java.awt.Component[] {});
-		layout.linkSize(SwingConstants.VERTICAL, new java.awt.Component[] {maps,mapName,newMapButton});
+//		layout.linkSize(SwingConstants.VERTICAL, new java.awt.Component[] {newMapButton});
 		layout.linkSize(SwingConstants.VERTICAL, new java.awt.Component[] {disMulLabel,disMulField});
 		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {disMulLabel,disMulField});
 		
@@ -284,21 +281,13 @@ public class Model2Page extends JFrame {
 		for(DescriptionDialog d: getOpenDescriptions()) {
 			d.refresh();
 		}
-		DungeonMap m = maps.getItemAt(maps.getSelectedIndex());
+		DungeonMap m = MappingApplication.getDungeon();
 		if (m!=null) {
-			disMulField.setText(""+m.distanceMultiplier);
+			disMulField.setText(""+m.getDistanceMultiplier());
 		}
-		
-		Modelv2Mapping.save();
+		this.setTitle("Mapping tool: "+m.getName());
+		MappingApplication.quickSave();
 		// show information of selected item
-	}
-	
-	private void refreshMaps() {
-		maps.removeAllItems();
-		for(DungeonMap m:Modelv2Mapping.getDungeon().getMaps()) {
-			maps.addItem(m);
-		}
-		refresh();
 	}
 	
 	void setLastSelected(GraphElement e) {
@@ -334,11 +323,14 @@ public class Model2Page extends JFrame {
                 JOptionPane.PLAIN_MESSAGE,
                 null,
                 null,
-                "dungeon.data");
+                "dungeon");
+		DungeonMap m = MappingApplication.getDungeon();
+		m.setName(s);
 		Persistence.setFilename(s);
-		PersistenceObjectStream.setFilename(s);
-		Modelv2Mapping.save();
+		MappingApplication.save();
+		refreshMap(m);
 	}
+	
 	private void loadAs() {
 		String s = (String)JOptionPane.showInputDialog(
                 this,
@@ -347,16 +339,44 @@ public class Model2Page extends JFrame {
                 JOptionPane.PLAIN_MESSAGE,
                 null,
                 null,
-                "dungeon.data");
+                "dungeon");
 		if (s==null) {
 			return;
 		}
 		Persistence.setFilename(s);
-		PersistenceObjectStream.setFilename(s);
-		Modelv2Mapping.resetDungeon();
-		refresh();
+		refreshMap(MappingApplication.resetDungeon());
 	}
 	public boolean areNodesShown() {
 		return nodesShownButton.isSelected();
+	}
+	private void newMap() {
+		String s = (String)JOptionPane.showInputDialog(
+                this,
+                "name of new map",
+                "load",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                null,
+                "dungeon");
+		if (s==null) {
+			return;
+		}
+		MapController.newMap(s, true);
+		refresh();
+	}
+	
+	private void deleteMap() {
+		int option = JOptionPane.showConfirmDialog(
+				this, 
+				"Are you sure you want to delete this map?", 
+				"Delete "+MappingApplication.getDungeon().getName()+"?", 
+				JOptionPane.YES_NO_OPTION);
+		
+		if(option==JOptionPane.OK_OPTION) {
+			System.out.print("test");
+			DungeonMap m = MappingApplication.getDungeon();
+			MapController.deleteMap(m.getName());
+			refreshMap(MappingApplication.getDungeon());
+		}
 	}
 }

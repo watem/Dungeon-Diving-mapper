@@ -1,4 +1,4 @@
-package dungeonMapping;
+package dungeonMapping.old;
 
 import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
@@ -13,7 +13,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-import dungeonMapping.GraphElement.Description;
+import dungeonMapping.old.GraphElement.Description;
 
 @SuppressWarnings("serial")
 public class DescriptionDialog extends JDialog {

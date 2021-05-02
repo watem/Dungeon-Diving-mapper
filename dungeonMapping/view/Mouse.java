@@ -1,4 +1,4 @@
-package dungeonMapping;
+package dungeonMapping.view;
 
 import java.awt.Point;
 import java.awt.event.MouseEvent;
@@ -6,6 +6,9 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
 import javax.swing.SwingUtilities;
+
+import dungeonMapping.model.GraphElement;
+import dungeonMapping.model.Node;
 
 public class Mouse implements MouseListener, MouseMotionListener {
 	public static final int SELECT = 0;
@@ -17,13 +20,13 @@ public class Mouse implements MouseListener, MouseMotionListener {
 	
 	private int dragScreenX, dragScreenY; 
 	
-	Model2View parent;
+	MapView parent;
 	int mode = SELECT;
 	
-	public Mouse(Model2View p) {
+	public Mouse(MapView p) {
 		parent = p;
 	}
-	public void setParent(Model2View p) {
+	public void setParent(MapView p) {
 		parent = p;
 	}
 	@Override

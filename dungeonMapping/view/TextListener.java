@@ -1,4 +1,4 @@
-package dungeonMapping;
+package dungeonMapping.view;
 
 import java.beans.PropertyChangeEvent;
 import java.util.Objects;

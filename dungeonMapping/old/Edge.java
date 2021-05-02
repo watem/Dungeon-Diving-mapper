@@ -1,4 +1,4 @@
-package dungeonMapping;
+package dungeonMapping.old;
 
 public class Edge extends GraphElement {
 	Node node1;
