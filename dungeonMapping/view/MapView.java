@@ -41,6 +41,7 @@ public class MapView extends JPanel {
 	}
 	public void set(DungeonMap m) {
 		this.m = m;
+		scale = 1;
 		refresh();
 	}
 	public void refresh() {
@@ -61,26 +62,15 @@ public class MapView extends JPanel {
 	    g2d.setColor(Color.BLACK);
 	    Rectangle2D boundingBox = new Rectangle2D.Float(0, 0, this.getWidth(), this.getHeight());
 	    g2d.draw(boundingBox);
-	//    for(TOBody body:bodies) {
-	//    	Color c = body.getC();
-	//    	if (c==null) {
-	//
-	//    	}
-	//    	g2d.setColor(c);
-	//    	double r = baseSize/(body.getDepth()+1);
-	//    	Coordinates co = bodyLocations.get(body);
-	//    	Pixels pos = toPixel(bodyLocations.get(body));
-	//    	if (pos.x+r>0 && pos.y+r>0 && pos.x-r<this.getWidth() && pos.y-r<this.getHeight()) {
-	//    		g2d.fill(new Ellipse2D.Double(pos.x-r, pos.y-r, 2*r, 2*r));
-	//    	}
-	//    }
 	    if (m!=null) {
 		    HashSet<Node> nodeSet = m.getNodes();
 		    HashSet<Edge> edgeSet = m.getEdges();
 		    if (edgeSet!=null) {
 			    for(Edge e:m.getEdges()) {
-			    	Coords pos1 = transform(e.getNode1().getCoords());
-			    	Coords pos2 = transform(e.getNode2().getCoords());
+//			    	Coords pos1 = transform(e.getNode1().getCoords());
+//			    	Coords pos2 = transform(e.getNode2().getCoords());
+			    	Point pos1 = coordToScreen(e.getNode1().getCoords());
+			    	Point pos2 = coordToScreen(e.getNode2().getCoords());
 			    	if ((pos1.x+r>0 && pos1.y+r>0 && pos1.x-r<this.getWidth() && pos1.y-r<this.getHeight())||(pos2.x+r>0 && pos2.y+r>0 && pos2.x-r<this.getWidth() && pos2.y-r<this.getHeight())) {
 			    		g2d.setColor(e.getDescription().colour);
 			    		g2d.drawLine(pos1.x,pos1.y,pos2.x,pos2.y);
@@ -89,7 +79,8 @@ public class MapView extends JPanel {
 		    }
 		    if (nodeSet!=null && parent.areNodesShown()) {
 			    for(Node n:m.getNodes()) {
-			    	Coords pos = transform(n.getCoords());
+//			    	Coords pos = transform(n.getCoords());
+			    	Point pos = coordToScreen(n.getCoords());
 			    	if (pos.x+r>0 && pos.y+r>0 && pos.x-r<this.getWidth() && pos.y-r<this.getHeight()) {
 			    		g2d.setColor(n.getDescription().colour);
 			    		g2d.fill(new Ellipse2D.Double(pos.x-r, pos.y-r, 2*r, 2*r));
@@ -115,19 +106,19 @@ public class MapView extends JPanel {
 	public GraphElement getElementAt(Point p) {
 		if (m!=null) {
 			for(Node n:m.getNodes()) {
-			    Coords pos = transform(n.getCoords());
-			    if(distance(p,pos)<=r) {
+			    Point pos = coordToScreen(n.getCoords());
+			    if(p.distance(pos)<=r) {
 			    	return n;
 			    }
 
 			}
 			for(Edge e:m.getEdges()) {
-			    	Coords pos1 = transform(e.getNode1().getCoords());
-			    	Coords pos2 = transform(e.getNode2().getCoords());
+			    	Point pos1 = coordToScreen(e.getNode1().getCoords());
+			    	Point pos2 = coordToScreen(e.getNode2().getCoords());
 			    	double dx = scale*pos1.x-scale*pos2.x;
 						double dy = scale*pos1.y-scale*pos2.y;
 			    	double d = Math.sqrt(dy*dy+dx*dx);
-			    	double dTotal = distance(p,pos1)+distance(p,pos2);
+			    	double dTotal = p.distance(pos1)+p.distance(pos2);
 			    	if(dTotal+epsilon>=d && dTotal-epsilon<=d) {
 			    		return e;
 			    	}
@@ -149,7 +140,7 @@ public class MapView extends JPanel {
 	 * @param location
 	 * @return
 	 */
-	Coords transform (Coords location) {
+	private Coords transform (Coords location) {
 		int x =(int) (scale*(location.x-topLeftX));
 		int y =(int) (scale*(location.y-topLeftY));
 		return new Coords(x,y);
@@ -160,7 +151,7 @@ public class MapView extends JPanel {
 	 * @param p
 	 * @return
 	 */
-	public Point invert(Point p) {
+	private Point invert(Point p) {
 		int x =(int) ((p.x/scale + topLeftX));
 		int y =(int) ((p.y/scale + topLeftY));
 		return new Point(x,y);
@@ -168,7 +159,7 @@ public class MapView extends JPanel {
 	public void zoomIn() {
 		Point centre = centreLocation();
 		System.out.println("centre:"+centre.x+" "+centre.y);
-		scale *=2.;
+		scale *=1.5;
 		moveToLocation(centre);
 		System.out.println("top:"+topLeftX+" "+topLeftY);
 		refresh();
@@ -190,6 +181,30 @@ public class MapView extends JPanel {
 		System.out.println("centre loc:"+c.x+" "+c.y);
 		topLeftX =(int) ((c.x-this.getWidth()/2));
 		topLeftY =(int) ((c.y-this.getHeight()/2));
+	}
+	
+	
+	Coords centre = new Coords(0,0);
+	public Point coordToScreen(Coords location) {
+		int x = location.x-centre.x;
+		int y = -location.y+centre.y;
+		x*=scale;
+		y*=scale;
+		x+=this.getWidth()/2;
+		y+=this.getHeight()/2;
+
+		return new Point(x, y);
+	}
+	public Coords screenToCoord(Point screen) {
+		int x = screen.x-this.getWidth()/2;
+		int y = screen.y-this.getHeight()/2;
+		
+		x/=scale;
+		y/=scale;
+		
+		x+=centre.x;
+		y=centre.y-y;
+		return new Coords(x, y);
 	}
 
 }

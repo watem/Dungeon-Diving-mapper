@@ -1,5 +1,6 @@
 package dungeonMapping.application;
 
+import dungeonMapping.controller.MapController;
 import dungeonMapping.model.DungeonMap;
 import dungeonMapping.view.MainPage;
 import dungeonMapping.serializing.Persistence;
@@ -8,7 +9,13 @@ public class MappingApplication {
 	public static final String version = "1.1";
 	private static DungeonMap d;
 	public static void main(String[] args) {
-		getDungeon();
+		try {
+			getDungeon();
+		} catch(Exception e) {
+			System.err.println("unable to load autosave");
+			MapController.deleteMap(Persistence.defaultFilename);
+			getDungeon();
+		}
 		java.awt.EventQueue.invokeLater(new Runnable() {
 	        public void run() {
 	          new MainPage().setVisible(true);

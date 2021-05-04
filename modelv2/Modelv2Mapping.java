@@ -1,6 +1,6 @@
-package dungeonMapping.old;
+package modelv2;
 
-import dungeonMapping.serializing.Persistence;
+import modelv2.serializing.Persistence;
 
 public class Modelv2Mapping {
 	private static Dungeon d;

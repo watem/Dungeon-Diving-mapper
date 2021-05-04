@@ -66,7 +66,7 @@ public class MainPage extends JFrame {
 		listeners();
 		menu();
 		
-		DungeonMap m = MappingApplication.resetDungeon();
+		DungeonMap m = MappingApplication.getDungeon();
 		refreshMap(m);
 	}
 	
@@ -328,6 +328,7 @@ public class MainPage extends JFrame {
 		m.setName(s);
 		Persistence.setFilename(s);
 		MappingApplication.save();
+		MappingApplication.quickSave();
 		refreshMap(m);
 	}
 	

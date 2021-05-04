@@ -7,6 +7,7 @@ import java.awt.event.MouseMotionListener;
 
 import javax.swing.SwingUtilities;
 
+import dungeonMapping.model.Coords;
 import dungeonMapping.model.GraphElement;
 import dungeonMapping.model.Node;
 
@@ -19,6 +20,8 @@ public class Mouse implements MouseListener, MouseMotionListener {
 	private Node draggedNode;
 	
 	private int dragScreenX, dragScreenY; 
+	private Point dragScreen;
+	private Coords startingCentre;
 	
 	MapView parent;
 	int mode = SELECT;
@@ -33,16 +36,16 @@ public class Mouse implements MouseListener, MouseMotionListener {
 	public void mouseClicked(MouseEvent e) {
 		// TODO Auto-generated method stub
 		System.out.println(mode);
-		System.out.println("Xl:"+parent.invert(e.getPoint()).x+" Yl:"+parent.invert(e.getPoint()).y);
+		System.out.println("Xl:"+parent.screenToCoord(e.getPoint()).x+" Yl:"+parent.screenToCoord(e.getPoint()).y);
 		System.out.println("Xp:"+e.getX()+" Yp:"+e.getY());
-		System.out.println(parent.getElementAt(parent.invert(e.getPoint())));
+		System.out.println(parent.getElementAt(e.getPoint()));
 		
 		if (mode==ADD_NODE) {
-			Point p = parent.invert(e.getPoint());
+			Coords p = parent.screenToCoord(e.getPoint());
 			parent.m.addNode(p.x, p.y);
 			parent.parent.refresh();
 		} else if (mode==SELECT) {
-			GraphElement ge = parent.getElementAt(parent.invert(e.getPoint()));
+			GraphElement ge = parent.getElementAt(e.getPoint());
 			if (ge==null) {
 				return;
 			}
@@ -58,7 +61,7 @@ public class Mouse implements MouseListener, MouseMotionListener {
 			GraphElement lastSelected = parent.parent.getLastSelected();
 			System.out.println("last "+lastSelected);
 			if (lastSelected!=null&&lastSelected instanceof Node) {
-				GraphElement newSelected = parent.getElementAt(parent.invert(e.getPoint()));
+				GraphElement newSelected = parent.getElementAt(e.getPoint());
 				if (newSelected==null) {
 					parent.parent.setLastSelected(null);
 				}
@@ -70,13 +73,13 @@ public class Mouse implements MouseListener, MouseMotionListener {
 					parent.parent.refresh();
 				}
 			} else {
-				GraphElement newSelected = parent.getElementAt(parent.invert(e.getPoint()));
+				GraphElement newSelected = parent.getElementAt(e.getPoint());
 				if (newSelected instanceof Node) {
 					parent.parent.setLastSelected(newSelected);
 				}
 			}
 		} else if (mode==EDIT) {
-			GraphElement ge = parent.getElementAt(parent.invert(e.getPoint()));
+			GraphElement ge = parent.getElementAt(e.getPoint());
 			if (ge==null) {
 				return;
 			}
@@ -106,7 +109,7 @@ public class Mouse implements MouseListener, MouseMotionListener {
 				draggedNode = null;
 				return;
 			}
-			GraphElement i = parent.getElementAt(parent.invert(e.getPoint()));
+			GraphElement i = parent.getElementAt(e.getPoint());
 			if (!(i instanceof Node)) {
 				draggedNode = null;
 				return;
@@ -114,7 +117,9 @@ public class Mouse implements MouseListener, MouseMotionListener {
 			draggedNode=(Node)i;
 //		System.out.println("Going to drag"+draggedNode);
 		} else if (SwingUtilities.isRightMouseButton(e)) {
-			Point p = parent.invert(e.getPoint());
+			startingCentre = parent.centre;
+			dragScreen = e.getPoint();
+			Coords p = parent.screenToCoord(e.getPoint());
 			dragScreenX = p.x;
 			dragScreenY = p.y;
 			System.out.println("topleft: "+parent.topLeftX+" "+parent.topLeftY);
@@ -137,12 +142,18 @@ public class Mouse implements MouseListener, MouseMotionListener {
 				return;
 			}
 	//		System.out.println("dragging "+draggedNode);
-			Point p = parent.invert(e.getPoint());
+			Coords p = parent.screenToCoord(e.getPoint());
 			draggedNode.moveNode(p.x, p.y);
 			parent.parent.refresh();
 		} else if (SwingUtilities.isRightMouseButton(e)) {
-			parent.topLeftX =(int) ((dragScreenX - e.getX())/parent.scale);
-			parent.topLeftY =(int) ((dragScreenY - e.getY())/parent.scale);
+			Point pCentre = parent.coordToScreen(startingCentre);
+			int dx = dragScreen.x-e.getX();
+			int dy = dragScreen.y-e.getY();
+			parent.centre = parent.screenToCoord(new Point(pCentre.x+dx, pCentre.y+dy));
+//			parent.centre.x = startingCentre.x + delta.x;
+//			parent.centre.y = startingCentre.y + delta.y;
+//			parent.topLeftX =(int) ((dragScreenX - e.getX())/parent.scale);
+//			parent.topLeftY =(int) ((dragScreenY - e.getY())/parent.scale);
 			parent.refresh();
 		}
 	}

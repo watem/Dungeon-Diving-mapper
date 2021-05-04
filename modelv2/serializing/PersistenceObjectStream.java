@@ -1,4 +1,4 @@
-package dungeonMapping.old.serializing;
+package modelv2.serializing;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

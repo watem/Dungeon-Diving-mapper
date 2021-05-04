@@ -15,7 +15,7 @@ public class DungeonMap implements Serializable {
 	
 	
 	public Node addNode(int x, int y) {
-		Node n = new Node(x,y, this, (name+": node: elem:"+elemsCreated++));
+		Node n = new Node(x,y, this, (name+": type:node: elem:"+elemsCreated++));
 		getNodes().add(n);
 		return n;
 	}
@@ -42,7 +42,7 @@ public class DungeonMap implements Serializable {
 		return edges;
 	}
 	public HashSet<Node> getNodes() {
-		if (edges==null) {
+		if (nodes==null) {
 			nodes = new HashSet<Node>();
 		}
 		return nodes;

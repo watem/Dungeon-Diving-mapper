@@ -1,4 +1,4 @@
-package dungeonMapping.old;
+package modelv2;
 
 public class EdgeGetter {
 	public static Node n1(Edge e) {

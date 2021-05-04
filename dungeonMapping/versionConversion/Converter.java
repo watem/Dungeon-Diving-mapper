@@ -2,16 +2,16 @@ package dungeonMapping.versionConversion;
 
 import java.util.ArrayList;
 
-import dungeonMapping.old.EdgeGetter;
+import modelv2.EdgeGetter;
 
 public class Converter {
 	
 	public static void main(String[] args) {
-		convert(dungeonMapping.old.serializing.Persistence.load());
+		convert(modelv2.serializing.Persistence.load());
 	}
-	public static void convert(dungeonMapping.old.Dungeon d) {
+	public static void convert(modelv2.Dungeon d) {
 		ArrayList<dungeonMapping.model.DungeonMap> maps = new ArrayList<>();
-		for(dungeonMapping.old.DungeonMap m:d.getMaps()) {
+		for(modelv2.DungeonMap m:d.getMaps()) {
 			maps.add(convert(m));
 		}
 		for(dungeonMapping.model.DungeonMap m:maps) {
@@ -20,22 +20,22 @@ public class Converter {
 		}
 	}
 	
-	public static dungeonMapping.model.DungeonMap convert(dungeonMapping.old.DungeonMap m) {
+	public static dungeonMapping.model.DungeonMap convert(modelv2.DungeonMap m) {
 		dungeonMapping.model.DungeonMap map = new dungeonMapping.model.DungeonMap(m.getName());
-		for(dungeonMapping.old.Node n:m.getNodes()) {
+		for(modelv2.Node n:m.getNodes()) {
 			dungeonMapping.model.Node node = map.addNode(n.getCoords().x, n.getCoords().y);
 			updateDescription(node, n.getDescription());
 		}
-		for(dungeonMapping.old.Edge e:m.getEdges()) {
-			dungeonMapping.old.Node n1 = EdgeGetter.n1(e);
-			dungeonMapping.old.Node n2 = EdgeGetter.n2(e);
+		for(modelv2.Edge e:m.getEdges()) {
+			modelv2.Node n1 = EdgeGetter.n1(e);
+			modelv2.Node n2 = EdgeGetter.n2(e);
 			dungeonMapping.model.Edge edge = map.connectNodes(map.getNodeAt(n1.getCoords().x, n1.getCoords().y), map.getNodeAt(n2.getCoords().x, n2.getCoords().y));
 			updateDescription(edge, e.getDescription());
 		}
 		return map;
 	}
 	
-	public static void updateDescription(dungeonMapping.model.GraphElement ge, dungeonMapping.old.GraphElement.Description d) {
+	public static void updateDescription(dungeonMapping.model.GraphElement ge, modelv2.GraphElement.Description d) {
 		dungeonMapping.model.GraphElement.Description de = ge.getDescription();
 		de.colour = d.colour;
 		de.features = d.features;

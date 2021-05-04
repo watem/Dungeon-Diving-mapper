@@ -1,4 +1,4 @@
-package dungeonMapping.old;
+package modelv2;
 
 import java.awt.Dimension;
 import java.util.ArrayList;
@@ -15,8 +15,8 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-import dungeonMapping.serializing.Persistence;
-import dungeonMapping.serializing.PersistenceObjectStream;
+import modelv2.serializing.Persistence;
+import modelv2.serializing.PersistenceObjectStream;
 
 @SuppressWarnings("serial")
 public class Model2Page extends JFrame {

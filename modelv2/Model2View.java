@@ -1,4 +1,4 @@
-package dungeonMapping.old;
+package modelv2;
 
 import java.awt.BasicStroke;
 import java.awt.Color;

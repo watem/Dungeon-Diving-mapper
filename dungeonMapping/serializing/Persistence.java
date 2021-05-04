@@ -10,7 +10,7 @@ public class Persistence {
 	public static final String folder = "maps/";
 	public static final String extension = ".map";
 
-	private static final String defaultFilename = "~dungeon";
+	public static final String defaultFilename = "~dungeon";
 	private static String filename = defaultFilename;
 
 	public static void save(DungeonMap dungeon) {
