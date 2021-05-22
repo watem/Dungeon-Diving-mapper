@@ -7,9 +7,9 @@ import java.awt.event.MouseMotionListener;
 
 import javax.swing.SwingUtilities;
 
-import dungeonMapping.model.Coords;
-import dungeonMapping.model.GraphElement;
-import dungeonMapping.model.Node;
+import dungeonMapping.model.v1_1.Coords;
+import dungeonMapping.model.v1_1.GraphElement;
+import dungeonMapping.model.v1_1.Node;
 
 public class Mouse implements MouseListener, MouseMotionListener {
 	public static final int SELECT = 0;

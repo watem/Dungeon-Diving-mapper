@@ -3,7 +3,7 @@ package dungeonMapping.controller;
 import java.io.File;
 
 import dungeonMapping.application.MappingApplication;
-import dungeonMapping.model.DungeonMap;
+import dungeonMapping.model.v1_1.DungeonMap;
 import dungeonMapping.serializing.Persistence;
 
 public class MapController {

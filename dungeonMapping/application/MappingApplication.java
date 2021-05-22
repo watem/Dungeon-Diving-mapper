@@ -1,7 +1,7 @@
 package dungeonMapping.application;
 
 import dungeonMapping.controller.MapController;
-import dungeonMapping.model.DungeonMap;
+import dungeonMapping.model.v1_1.DungeonMap;
 import dungeonMapping.view.MainPage;
 import dungeonMapping.serializing.Persistence;
 
@@ -42,7 +42,7 @@ public class MappingApplication {
 		    return d;
 		  }
 
-	public static DungeonMap resetDungeon(){
+	public static DungeonMap resetDungeon() {
 	    d = Persistence.load();
 	    return d;
 	}

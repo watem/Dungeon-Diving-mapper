@@ -10,11 +10,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.HashSet;
 import javax.swing.JPanel;
 
-import dungeonMapping.model.Coords;
-import dungeonMapping.model.DungeonMap;
-import dungeonMapping.model.Edge;
-import dungeonMapping.model.GraphElement;
-import dungeonMapping.model.Node;
+import dungeonMapping.model.v1_1.*;
 
 
 @SuppressWarnings("serial")
@@ -31,6 +27,7 @@ public class MapView extends JPanel {
 	double scale = 1;
 	int epsilon = 2;
 	int topLeftX = 0, topLeftY = 0;
+	private static boolean findNoEdges = false;
 
 
 	Mouse ml = new Mouse(this);
@@ -67,10 +64,9 @@ public class MapView extends JPanel {
 		    HashSet<Edge> edgeSet = m.getEdges();
 		    if (edgeSet!=null) {
 			    for(Edge e:m.getEdges()) {
-//			    	Coords pos1 = transform(e.getNode1().getCoords());
-//			    	Coords pos2 = transform(e.getNode2().getCoords());
-			    	Point pos1 = coordToScreen(e.getNode1().getCoords());
-			    	Point pos2 = coordToScreen(e.getNode2().getCoords());
+			    		
+			    	Point pos1 = coordToScreen(m.getNode(e.getNode1()).getCoords());
+			    	Point pos2 = coordToScreen(m.getNode(e.getNode2()).getCoords());
 			    	if ((pos1.x+r>0 && pos1.y+r>0 && pos1.x-r<this.getWidth() && pos1.y-r<this.getHeight())||(pos2.x+r>0 && pos2.y+r>0 && pos2.x-r<this.getWidth() && pos2.y-r<this.getHeight())) {
 			    		g2d.setColor(e.getDescription().colour);
 			    		g2d.drawLine(pos1.x,pos1.y,pos2.x,pos2.y);
@@ -83,7 +79,13 @@ public class MapView extends JPanel {
 			    	Point pos = coordToScreen(n.getCoords());
 			    	if (pos.x+r>0 && pos.y+r>0 && pos.x-r<this.getWidth() && pos.y-r<this.getHeight()) {
 			    		g2d.setColor(n.getDescription().colour);
-			    		g2d.fill(new Ellipse2D.Double(pos.x-r, pos.y-r, 2*r, 2*r));
+			    		if(findNoEdges && n.getEdges().size()<1) {
+			    			g2d.setColor(Color.CYAN);
+			    			g2d.fill(new Ellipse2D.Double(pos.x-r, pos.y-r, 6*r, 6*r));
+			    		} else {
+			    			g2d.fill(new Ellipse2D.Double(pos.x-r, pos.y-r, 2*r, 2*r));
+			    		}
+			    		
 			    	}
 			    }
 		    }
@@ -107,14 +109,19 @@ public class MapView extends JPanel {
 		if (m!=null) {
 			for(Node n:m.getNodes()) {
 			    Point pos = coordToScreen(n.getCoords());
+			    if (findNoEdges && n.getEdges().size()<1) {
+			    	if(p.distance(pos)<=3*r) {
+			    		return n;
+			    	}
+			    }
 			    if(p.distance(pos)<=r) {
 			    	return n;
 			    }
 
 			}
 			for(Edge e:m.getEdges()) {
-			    	Point pos1 = coordToScreen(e.getNode1().getCoords());
-			    	Point pos2 = coordToScreen(e.getNode2().getCoords());
+			    	Point pos1 = coordToScreen(m.getNode(e.getNode1()).getCoords());
+			    	Point pos2 = coordToScreen(m.getNode(e.getNode2()).getCoords());
 			    	double dx = scale*pos1.x-scale*pos2.x;
 						double dy = scale*pos1.y-scale*pos2.y;
 			    	double d = Math.sqrt(dy*dy+dx*dx);

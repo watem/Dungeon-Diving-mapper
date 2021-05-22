@@ -1,4 +1,4 @@
-package dungeonMapping.model;
+package dungeonMapping.model.v1_1;
 
 import java.awt.Color;
 import java.io.Serializable;

@@ -3,7 +3,9 @@ package dungeonMapping.serializing;
 import java.io.File;
 
 import dungeonMapping.application.MappingApplication;
-import dungeonMapping.model.DungeonMap;
+import dungeonMapping.model.DungeonWrapper;
+import dungeonMapping.model.v1_1.DungeonMap;
+import dungeonMapping.versionConversion.GenericConverter;
 
 public class Persistence {
 
@@ -15,7 +17,7 @@ public class Persistence {
 
 	public static void save(DungeonMap dungeon) {
 		checkFolder();
-		PersistenceObjectStream.serialize(dungeon, folder + clean(filename) + extension);
+		PersistenceObjectStream.serialize(new DungeonWrapper(dungeon), folder + clean(filename) + extension);
 	}
 
 	public static String clean(String name) {
@@ -27,15 +29,18 @@ public class Persistence {
 
 	public static void quickSave(DungeonMap dungeon) {
 		checkFolder();
-		PersistenceObjectStream.serialize(dungeon, folder + clean(defaultFilename) + extension);
+		PersistenceObjectStream.serialize(new DungeonWrapper(dungeon), folder + clean(defaultFilename) + extension);
 	}
 
 	public static DungeonMap load() {
 		checkFolder();
-		DungeonMap dungeon = (DungeonMap) PersistenceObjectStream.deserialize(folder + clean(filename) + extension);
+		DungeonWrapper wrapper = (DungeonWrapper) PersistenceObjectStream.deserialize(folder + clean(filename) + extension);
+		DungeonMap dungeon;
 		// model cannot be loaded - create empty map
-		if (dungeon == null) {
+		if (wrapper == null) {
 			dungeon = new DungeonMap(filename);
+		} else {
+			dungeon = (DungeonMap) GenericConverter.convert(wrapper);
 		}
 		MappingApplication.setDungeon(dungeon);
 		return dungeon;

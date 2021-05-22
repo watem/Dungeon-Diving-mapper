@@ -1,16 +1,16 @@
-package dungeonMapping.model;
+package dungeonMapping.model.v1_1;
 
 import java.util.HashSet;
 
 public class Node extends GraphElement {
-	private HashSet<Edge> edges;
+	private HashSet<String> edges;
 	private Coords coords;
 	
 	public void addEdge(Edge e) {
 		if (edges==null) {
 			edges = new HashSet<>();
 		}
-		edges.add(e);
+		edges.add(e.getId());
 	}
 
 	public Coords getCoords() {
@@ -23,9 +23,9 @@ public class Node extends GraphElement {
 		coords = new Coords(x,y);
 		this.setId(id);
 	}
-	public HashSet<Edge> getEdges() {
+	public HashSet<String> getEdges() {
 		if (edges==null) {
-			edges = new HashSet<Edge>();
+			edges = new HashSet<String>();
 		}
 		return edges;
 	}

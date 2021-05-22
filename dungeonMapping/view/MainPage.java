@@ -17,8 +17,8 @@ import javax.swing.SwingConstants;
 
 import dungeonMapping.application.MappingApplication;
 import dungeonMapping.controller.MapController;
-import dungeonMapping.model.DungeonMap;
-import dungeonMapping.model.GraphElement;
+import dungeonMapping.model.v1_1.DungeonMap;
+import dungeonMapping.model.v1_1.GraphElement;
 import dungeonMapping.serializing.Persistence;
 import dungeonMapping.serializing.PersistenceObjectStream;
 

@@ -13,10 +13,8 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-import dungeonMapping.model.GraphElement.Description;
-import dungeonMapping.model.Node;
-import dungeonMapping.model.Edge;
-import dungeonMapping.model.GraphElement;
+import dungeonMapping.model.v1_1.*;
+import dungeonMapping.model.v1_1.GraphElement.Description;
 
 @SuppressWarnings("serial")
 public class DescriptionDialog extends JDialog {

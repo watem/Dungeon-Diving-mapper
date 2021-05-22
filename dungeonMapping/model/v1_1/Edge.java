@@ -1,13 +1,14 @@
-package dungeonMapping.model;
+package dungeonMapping.model.v1_1;
 
 public class Edge extends GraphElement {
-	private Node node1;
-	private Node node2;
+	private String node1;
+	private String node2;
+	
+	private Coords c1;
+	private Coords c2;
 	
 	
 	public double getLength() {
-		Coords c1 = getNode1().getCoords();
-		Coords c2 = getNode2().getCoords();
 		int x = c1.x-c2.x;
 		int y = c1.y-c2.y;
 		return Math.sqrt(x*x+y*y);
@@ -18,6 +19,8 @@ public class Edge extends GraphElement {
 		super(m);
 		this.setNode1(node1);
 		this.setNode2(node2);
+		this.c1 = node1.getCoords();
+		this.c2 = node2.getCoords();
 		this.setId(id);
 	}
 
@@ -25,7 +28,7 @@ public class Edge extends GraphElement {
 	/**
 	 * @return the node1
 	 */
-	public Node getNode1() {
+	public String getNode1() {
 		return node1;
 	}
 
@@ -34,15 +37,17 @@ public class Edge extends GraphElement {
 	 * @param node1 the node1 to set
 	 */
 	public void setNode1(Node node1) {
-		this.node1 = node1;
+		this.node1 = node1.getId();
+		this.c1 = node1.getCoords();
 	}
 
 
 	/**
 	 * @return the node2
 	 */
-	public Node getNode2() {
+	public String getNode2() {
 		return node2;
+		
 	}
 
 
@@ -50,6 +55,7 @@ public class Edge extends GraphElement {
 	 * @param node2 the node2 to set
 	 */
 	public void setNode2(Node node2) {
-		this.node2 = node2;
+		this.node2 = node2.getId();
+		this.c2 = node2.getCoords();
 	}
 }

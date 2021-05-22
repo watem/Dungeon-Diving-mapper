@@ -1,4 +1,4 @@
-package dungeonMapping.model;
+package dungeonMapping.model.v1_1;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -10,6 +10,9 @@ public class DungeonMap implements Serializable {
 	private String name;
 	private HashSet<Edge> edges;
 	private HashSet<Node> nodes;
+	private transient HashMap<String, Edge> edgesById;
+	private transient HashMap<String, Node> nodesById;
+//	private transient HashMap<Coords, Node> nodesByCoord;
 	private int elemsCreated=0;
 	private double distanceMultiplier=1.;
 	
@@ -24,8 +27,8 @@ public class DungeonMap implements Serializable {
 		if (n1!=null&&n2!=null&&n1!=n2) {
 			Edge e = new Edge(n1, n2, this, (name+": type:edge: elem:"+elemsCreated++));
 			getEdges().add(e);
-			n1.getEdges().add(e);
-			n2.getEdges().add(e);
+			n1.getEdges().add(e.getId());
+			n2.getEdges().add(e.getId());
 			return e;
 		}
 		return null;
@@ -41,16 +44,48 @@ public class DungeonMap implements Serializable {
 		}
 		return edges;
 	}
+	
 	public HashSet<Node> getNodes() {
 		if (nodes==null) {
 			nodes = new HashSet<Node>();
 		}
 		return nodes;
 	}
+	
+	public Edge getEdge(String id) {
+		if(edgesById==null) {
+			resetHashMaps();
+		}
+		return edgesById.get(id);
+	}
+	
+	public Node getNode(String id) {
+		if(nodesById==null) {
+			resetHashMaps();
+		}
+		return nodesById.get(id);
+	}
+	
 	public Node getNodeAt(int x, int y) {
-		for(Node n:nodes) {
-			Coords c = n.getCoords();
-			if (c.x==x&&c.y==y) {
+//		if(nodesByCoord==null) {
+//			resetHashMaps();
+//		}
+//		return nodesByCoord.get(new Coords(x,y));
+		Coords c = new Coords(x,y);
+		for(Node n:getNodes()) {
+			if(n.getCoords().equals(c)) {
+				return n;
+			}
+		}
+		return null;
+	}
+	public Node getNodeAt(Coords c) {
+//		if(nodesByCoord==null) {
+//			resetHashMaps();
+//		}
+//		return nodesByCoord.get(c);
+		for(Node n:getNodes()) {
+			if(n.getCoords().equals(c)) {
 				return n;
 			}
 		}
@@ -58,17 +93,31 @@ public class DungeonMap implements Serializable {
 	}
 	public void removeNode(Node n) {
 		if(getNodes().remove(n)) {
-			for(Edge e:n.getEdges()) {
+			for(Edge e:edges(n.getEdges())) {
 				removeEdge(e);
 			}
 		}
 	}
 	
+	public HashSet<Edge> edges(HashSet<String> ids) {
+		HashSet<Edge> edgeSet = new HashSet<>();
+		for(String id:ids) {
+			edgeSet.add(getEdge(id));
+		}
+		return edgeSet;
+	}
+	public HashSet<Node> nodes(HashSet<String> ids) {
+		HashSet<Node> nodeSet = new HashSet<>();
+		for(String id:ids) {
+			nodeSet.add(getNode(id));
+		}
+		return nodeSet;
+	}
 
 	public void removeEdge(Edge e) {
 		if(getEdges().remove(e)) {
-			e.getNode1().getEdges().remove(e);
-			e.getNode2().getEdges().remove(e);
+			getNode(e.getNode1()).getEdges().remove(e.getId());
+			getNode(e.getNode2()).getEdges().remove(e.getId());
 		}
 	}
 	
@@ -118,6 +167,20 @@ public class DungeonMap implements Serializable {
 	public void setName(String s) {
 		name = s;
 		
+	}
+	
+	public void resetHashMaps() {
+		edgesById = new HashMap<>();
+		nodesById = new HashMap<>();
+//		nodesByCoord = new HashMap<>();
+		
+		for(Edge e:getEdges()) {
+			edgesById.put(e.getId(), e);
+		}
+		for(Node n:getNodes()) {
+			nodesById.put(n.getId(), n);
+//			nodesByCoord.put(n.getCoords(), n);
+		}
 	}
 }
 
