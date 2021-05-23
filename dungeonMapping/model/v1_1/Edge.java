@@ -1,19 +1,18 @@
 package dungeonMapping.model.v1_1;
 
+@SuppressWarnings("serial")
 public class Edge extends GraphElement {
 	private String node1;
 	private String node2;
-	
+
 	private Coords c1;
 	private Coords c2;
-	
-	
-	public double getLength() {
-		int x = c1.x-c2.x;
-		int y = c1.y-c2.y;
-		return Math.sqrt(x*x+y*y);
-	}
 
+	public double getLength() {
+		int x = c1.x - c2.x;
+		int y = c1.y - c2.y;
+		return Math.sqrt(x * x + y * y);
+	}
 
 	public Edge(Node node1, Node node2, DungeonMap m, String id) {
 		super(m);
@@ -24,14 +23,12 @@ public class Edge extends GraphElement {
 		this.setId(id);
 	}
 
-
 	/**
 	 * @return the node1
 	 */
 	public String getNode1() {
 		return node1;
 	}
-
 
 	/**
 	 * @param node1 the node1 to set
@@ -41,15 +38,13 @@ public class Edge extends GraphElement {
 		this.c1 = node1.getCoords();
 	}
 
-
 	/**
 	 * @return the node2
 	 */
 	public String getNode2() {
 		return node2;
-		
-	}
 
+	}
 
 	/**
 	 * @param node2 the node2 to set

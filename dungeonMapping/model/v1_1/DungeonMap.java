@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 
-
 public class DungeonMap implements Serializable {
 	private static final long serialVersionUID = -7953540481645760148L;
 	private String name;
@@ -13,19 +12,18 @@ public class DungeonMap implements Serializable {
 	private transient HashMap<String, Edge> edgesById;
 	private transient HashMap<String, Node> nodesById;
 //	private transient HashMap<Coords, Node> nodesByCoord;
-	private int elemsCreated=0;
-	private double distanceMultiplier=1.;
-	
-	
+	private int elemsCreated = 0;
+	private double distanceMultiplier = 1.;
+
 	public Node addNode(int x, int y) {
-		Node n = new Node(x,y, this, (name+": type:node: elem:"+elemsCreated++));
+		Node n = new Node(x, y, this, (name + ": type:node: elem:" + elemsCreated++));
 		getNodes().add(n);
 		return n;
 	}
-	
+
 	public Edge connectNodes(Node n1, Node n2) {
-		if (n1!=null&&n2!=null&&n1!=n2) {
-			Edge e = new Edge(n1, n2, this, (name+": type:edge: elem:"+elemsCreated++));
+		if (n1 != null && n2 != null && n1 != n2) {
+			Edge e = new Edge(n1, n2, this, (name + ": type:edge: elem:" + elemsCreated++));
 			getEdges().add(e);
 			n1.getEdges().add(e.getId());
 			n2.getEdges().add(e.getId());
@@ -33,102 +31,105 @@ public class DungeonMap implements Serializable {
 		}
 		return null;
 	}
-	
+
 	public DungeonMap(String name) {
-		this.name=name;
+		this.name = name;
 	}
-	
+
 	public HashSet<Edge> getEdges() {
-		if (edges==null) {
+		if (edges == null) {
 			edges = new HashSet<Edge>();
 		}
 		return edges;
 	}
-	
+
 	public HashSet<Node> getNodes() {
-		if (nodes==null) {
+		if (nodes == null) {
 			nodes = new HashSet<Node>();
 		}
 		return nodes;
 	}
-	
+
 	public Edge getEdge(String id) {
-		if(edgesById==null) {
+		if (edgesById == null) {
 			resetHashMaps();
 		}
 		return edgesById.get(id);
 	}
-	
+
 	public Node getNode(String id) {
-		if(nodesById==null) {
+		if (nodesById == null) {
 			resetHashMaps();
 		}
 		return nodesById.get(id);
 	}
-	
+
 	public Node getNodeAt(int x, int y) {
 //		if(nodesByCoord==null) {
 //			resetHashMaps();
 //		}
 //		return nodesByCoord.get(new Coords(x,y));
-		Coords c = new Coords(x,y);
-		for(Node n:getNodes()) {
-			if(n.getCoords().equals(c)) {
+		Coords c = new Coords(x, y);
+		for (Node n : getNodes()) {
+			if (n.getCoords().equals(c)) {
 				return n;
 			}
 		}
 		return null;
 	}
+
 	public Node getNodeAt(Coords c) {
 //		if(nodesByCoord==null) {
 //			resetHashMaps();
 //		}
 //		return nodesByCoord.get(c);
-		for(Node n:getNodes()) {
-			if(n.getCoords().equals(c)) {
+		for (Node n : getNodes()) {
+			if (n.getCoords().equals(c)) {
 				return n;
 			}
 		}
 		return null;
 	}
+
 	public void removeNode(Node n) {
-		if(getNodes().remove(n)) {
-			for(Edge e:edges(n.getEdges())) {
+		if (getNodes().remove(n)) {
+			for (Edge e : edges(n.getEdges())) {
 				removeEdge(e);
 			}
 		}
 	}
-	
+
 	public HashSet<Edge> edges(HashSet<String> ids) {
 		HashSet<Edge> edgeSet = new HashSet<>();
-		for(String id:ids) {
+		for (String id : ids) {
 			edgeSet.add(getEdge(id));
 		}
 		return edgeSet;
 	}
+
 	public HashSet<Node> nodes(HashSet<String> ids) {
 		HashSet<Node> nodeSet = new HashSet<>();
-		for(String id:ids) {
+		for (String id : ids) {
 			nodeSet.add(getNode(id));
 		}
 		return nodeSet;
 	}
 
 	public void removeEdge(Edge e) {
-		if(getEdges().remove(e)) {
+		if (getEdges().remove(e)) {
 			getNode(e.getNode1()).getEdges().remove(e.getId());
 			getNode(e.getNode2()).getEdges().remove(e.getId());
 		}
 	}
-	
+
 	public void removeItem(GraphElement e) {
 		if (e instanceof Node) {
-			removeNode((Node)e);
+			removeNode((Node) e);
 		} else if (e instanceof Edge) {
-			removeEdge((Edge)e);
+			removeEdge((Edge) e);
 		}
 	}
-	
+
 	@Override
 	public String toString() {
 		return name;
@@ -136,7 +137,7 @@ public class DungeonMap implements Serializable {
 
 	@Override
 	public boolean equals(Object o) {
-		if (o==this) {
+		if (o == this) {
 			return true;
 		}
 		if (!(o instanceof DungeonMap)) {
@@ -145,7 +146,7 @@ public class DungeonMap implements Serializable {
 		DungeonMap m = (DungeonMap) o;
 		return m.name.equals(this.name);
 	}
-	
+
 	public String getName() {
 		return name;
 	}
@@ -166,21 +167,20 @@ public class DungeonMap implements Serializable {
 
 	public void setName(String s) {
 		name = s;
-		
+
 	}
-	
+
 	public void resetHashMaps() {
 		edgesById = new HashMap<>();
 		nodesById = new HashMap<>();
 //		nodesByCoord = new HashMap<>();
-		
-		for(Edge e:getEdges()) {
+
+		for (Edge e : getEdges()) {
 			edgesById.put(e.getId(), e);
 		}
-		for(Node n:getNodes()) {
+		for (Node n : getNodes()) {
 			nodesById.put(n.getId(), n);
 //			nodesByCoord.put(n.getCoords(), n);
 		}
 	}
 }
-

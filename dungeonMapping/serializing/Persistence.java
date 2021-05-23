@@ -34,7 +34,8 @@ public class Persistence {
 
 	public static DungeonMap load() {
 		checkFolder();
-		DungeonWrapper wrapper = (DungeonWrapper) PersistenceObjectStream.deserialize(folder + clean(filename) + extension);
+		DungeonWrapper wrapper = (DungeonWrapper) PersistenceObjectStream
+				.deserialize(folder + clean(filename) + extension);
 		DungeonMap dungeon;
 		// model cannot be loaded - create empty map
 		if (wrapper == null) {

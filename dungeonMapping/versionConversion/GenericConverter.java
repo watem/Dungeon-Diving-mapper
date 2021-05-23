@@ -11,14 +11,31 @@ public class GenericConverter {
 	}
 
 	public static Object convert(DungeonWrapper wrapper) {
-		if (wrapper.version.equals(DungeonWrapper.currentVersion)) {
+		if (wrapper.getVersion().equals(DungeonWrapper.currentVersion)) {
 			return wrapper.dungeon;
 		}
-		int major = DungeonWrapper.getMajorVersion(wrapper.version);
-		int minor = DungeonWrapper.getMinorVersion(wrapper.version);
-		
-		// TODO Auto-generated method stub
-		return null;
+
+		return convert(wrapper, DungeonWrapper.currentVersion);
+	}
+
+	public static Object convert(DungeonWrapper wrapper, String updatedVersion) {
+		int major = DungeonWrapper.getMajorVersion(wrapper.getVersion());
+		int minor = DungeonWrapper.getMinorVersion(wrapper.getVersion());
+		int updatedMajor = DungeonWrapper.getMajorVersion(updatedVersion);
+		int updatedMinor = DungeonWrapper.getMinorVersion(updatedVersion);
+
+		if (major >= updatedMajor && minor > updatedMinor) {
+			throw new RuntimeException("cannot downgrade version");
+		}
+		switch (wrapper.getVersion()) {
+		case "v1.1":
+			wrapper = new DungeonWrapper(convert((dungeonMapping.model.v1_1.DungeonMap) wrapper.dungeon), "v1.2");
+		}
+		return wrapper;
+	}
+
+	private static dungeonMapping.model.v1_1.DungeonMap convert(dungeonMapping.model.v1_1.DungeonMap map) {
+		return map;
 	}
 
 }

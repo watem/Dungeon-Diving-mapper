@@ -12,7 +12,6 @@ import javax.swing.JPanel;
 
 import dungeonMapping.model.v1_1.*;
 
-
 @SuppressWarnings("serial")
 public class MapView extends JPanel {
 //	private List<Ellipse2D> nodes;
@@ -20,197 +19,150 @@ public class MapView extends JPanel {
 //	private HashMap<Ellipse2D, Node> nodeMap;
 //	private HashMap<Line2D, Node> edgeMap;
 
-
 	MainPage parent;
 	DungeonMap m;
 	double r = 4.;
 	double scale = 1;
 	int epsilon = 2;
-	int topLeftX = 0, topLeftY = 0;
-	private static boolean findNoEdges = false;
-
 
 	Mouse ml = new Mouse(this);
+
 	public MapView(MainPage parent) {
 		this.parent = parent;
 		addMouseListener(ml);
 		addMouseMotionListener(ml);
 	}
+
 	public void set(DungeonMap m) {
 		this.m = m;
 		scale = 1;
 		refresh();
 	}
+
 	public void refresh() {
 		repaint();
 	}
 
-	private void doDrawing(Graphics g){
-	//	bodyLocations = SpatialController.getAllLocations(system.getId());
+	private void doDrawing(Graphics g) {
+		// bodyLocations = SpatialController.getAllLocations(system.getId());
 		Graphics2D background = (Graphics2D) g.create();
 		background.setColor(Color.WHITE);
 		Rectangle2D background_1 = new Rectangle2D.Float(0, 0, this.getWidth(), this.getHeight());
 		background.draw(background_1);
 		background.fill(background_1);
 
-	    Graphics2D g2d = (Graphics2D) g.create();
-	    BasicStroke aStroke = new BasicStroke(2);
-	    g2d.setStroke(aStroke);
-	    g2d.setColor(Color.BLACK);
-	    Rectangle2D boundingBox = new Rectangle2D.Float(0, 0, this.getWidth(), this.getHeight());
-	    g2d.draw(boundingBox);
-	    if (m!=null) {
-		    HashSet<Node> nodeSet = m.getNodes();
-		    HashSet<Edge> edgeSet = m.getEdges();
-		    if (edgeSet!=null) {
-			    for(Edge e:m.getEdges()) {
-			    		
-			    	Point pos1 = coordToScreen(m.getNode(e.getNode1()).getCoords());
-			    	Point pos2 = coordToScreen(m.getNode(e.getNode2()).getCoords());
-			    	if ((pos1.x+r>0 && pos1.y+r>0 && pos1.x-r<this.getWidth() && pos1.y-r<this.getHeight())||(pos2.x+r>0 && pos2.y+r>0 && pos2.x-r<this.getWidth() && pos2.y-r<this.getHeight())) {
-			    		g2d.setColor(e.getDescription().colour);
-			    		g2d.drawLine(pos1.x,pos1.y,pos2.x,pos2.y);
-			    	}
-			    }
-		    }
-		    if (nodeSet!=null && parent.areNodesShown()) {
-			    for(Node n:m.getNodes()) {
+		Graphics2D g2d = (Graphics2D) g.create();
+		BasicStroke aStroke = new BasicStroke(2);
+		g2d.setStroke(aStroke);
+		g2d.setColor(Color.BLACK);
+		Rectangle2D boundingBox = new Rectangle2D.Float(0, 0, this.getWidth(), this.getHeight());
+		g2d.draw(boundingBox);
+		if (m != null) {
+			HashSet<Node> nodeSet = m.getNodes();
+			HashSet<Edge> edgeSet = m.getEdges();
+			if (edgeSet != null) {
+				for (Edge e : m.getEdges()) {
+
+					Point pos1 = coordToScreen(m.getNode(e.getNode1()).getCoords());
+					Point pos2 = coordToScreen(m.getNode(e.getNode2()).getCoords());
+					if ((pos1.x + r > 0 && pos1.y + r > 0 && pos1.x - r < this.getWidth()
+							&& pos1.y - r < this.getHeight())
+							|| (pos2.x + r > 0 && pos2.y + r > 0 && pos2.x - r < this.getWidth()
+									&& pos2.y - r < this.getHeight())) {
+						g2d.setColor(e.getDescription().colour);
+						g2d.drawLine(pos1.x, pos1.y, pos2.x, pos2.y);
+					}
+				}
+			}
+			if (nodeSet != null && parent.areNodesShown()) {
+				for (Node n : m.getNodes()) {
 //			    	Coords pos = transform(n.getCoords());
-			    	Point pos = coordToScreen(n.getCoords());
-			    	if (pos.x+r>0 && pos.y+r>0 && pos.x-r<this.getWidth() && pos.y-r<this.getHeight()) {
-			    		g2d.setColor(n.getDescription().colour);
-			    		if(findNoEdges && n.getEdges().size()<1) {
-			    			g2d.setColor(Color.CYAN);
-			    			g2d.fill(new Ellipse2D.Double(pos.x-r, pos.y-r, 6*r, 6*r));
-			    		} else {
-			    			g2d.fill(new Ellipse2D.Double(pos.x-r, pos.y-r, 2*r, 2*r));
-			    		}
-			    		
-			    	}
-			    }
-		    }
-	    }
+					Point pos = coordToScreen(n.getCoords());
+					if (pos.x + r > 0 && pos.y + r > 0 && pos.x - r < this.getWidth() && pos.y - r < this.getHeight()) {
+						g2d.setColor(n.getDescription().colour);
+						if (parent.areDisconnectedNodesHighlighted() && n.getEdges().size() < 1) {
+							g2d.setColor(Color.CYAN);
+							g2d.fill(new Ellipse2D.Double(pos.x - 3 * r, pos.y - 3 * r, 6 * r, 6 * r));
+						} else {
+							g2d.fill(new Ellipse2D.Double(pos.x - r, pos.y - r, 2 * r, 2 * r));
+						}
+
+					}
+				}
+			}
+		}
 	}
-
-
-
-
-
-
-
 
 	@Override
 	public void paintComponent(Graphics g) {
-	    super.paintComponent(g);
-			doDrawing(g);
+		super.paintComponent(g);
+		doDrawing(g);
 	}
 
 	public GraphElement getElementAt(Point p) {
-		if (m!=null) {
-			for(Node n:m.getNodes()) {
-			    Point pos = coordToScreen(n.getCoords());
-			    if (findNoEdges && n.getEdges().size()<1) {
-			    	if(p.distance(pos)<=3*r) {
-			    		return n;
-			    	}
-			    }
-			    if(p.distance(pos)<=r) {
-			    	return n;
-			    }
+		if (m != null) {
+			for (Node n : m.getNodes()) {
+				Point pos = coordToScreen(n.getCoords());
+				if (parent.areDisconnectedNodesHighlighted() && n.getEdges().size() < 1) {
+					if (p.distance(pos) <= 3 * r) {
+						return n;
+					}
+				}
+				if (p.distance(pos) <= r) {
+					return n;
+				}
 
 			}
-			for(Edge e:m.getEdges()) {
-			    	Point pos1 = coordToScreen(m.getNode(e.getNode1()).getCoords());
-			    	Point pos2 = coordToScreen(m.getNode(e.getNode2()).getCoords());
-			    	double dx = scale*pos1.x-scale*pos2.x;
-						double dy = scale*pos1.y-scale*pos2.y;
-			    	double d = Math.sqrt(dy*dy+dx*dx);
-			    	double dTotal = p.distance(pos1)+p.distance(pos2);
-			    	if(dTotal+epsilon>=d && dTotal-epsilon<=d) {
-			    		return e;
-			    	}
-			    }
-		    }
+			for (Edge e : m.getEdges()) {
+				Point pos1 = coordToScreen(m.getNode(e.getNode1()).getCoords());
+				Point pos2 = coordToScreen(m.getNode(e.getNode2()).getCoords());
+				double dx = scale * pos1.x - scale * pos2.x;
+				double dy = scale * pos1.y - scale * pos2.y;
+				double d = Math.sqrt(dy * dy + dx * dx);
+				double dTotal = p.distance(pos1) + p.distance(pos2);
+				if (dTotal + epsilon >= d && dTotal - epsilon <= d) {
+					return e;
+				}
+			}
+		}
 		return null;
 	}
 
-	private double distance(Point p, Coords c) {
-		double dx = p.getX()-scale*c.x;
-		double dy = p.getY()-scale*c.y;
-
-
-		return Math.sqrt(dy*dy+dx*dx);
-	}
-	
-	/**
-	 * turns "physical" locations to their relative position on screen 
-	 * @param location
-	 * @return
-	 */
-	private Coords transform (Coords location) {
-		int x =(int) (scale*(location.x-topLeftX));
-		int y =(int) (scale*(location.y-topLeftY));
-		return new Coords(x,y);
-	}
-
-	/**
-	 * turns positions on screen to their relative "physical" location
-	 * @param p
-	 * @return
-	 */
-	private Point invert(Point p) {
-		int x =(int) ((p.x/scale + topLeftX));
-		int y =(int) ((p.y/scale + topLeftY));
-		return new Point(x,y);
-	}
 	public void zoomIn() {
-		Point centre = centreLocation();
-		System.out.println("centre:"+centre.x+" "+centre.y);
-		scale *=1.5;
-		moveToLocation(centre);
-		System.out.println("top:"+topLeftX+" "+topLeftY);
+		System.out.println("centre:" + centre.x + " " + centre.y);
+		scale *= 1.5;
 		refresh();
-		
+
 	}
+
 	public void zoomOut() {
-		Point centre = centreLocation();
-		System.out.println("centre:"+centre.x+" "+centre.y);
-		scale /=1.5;
-		moveToLocation(centre);
+		System.out.println("centre:" + centre.x + " " + centre.y);
+		scale /= 1.5;
 		refresh();
 	}
-	private Point centreLocation() {
-		Point p = new Point(this.getWidth()/2, this.getHeight()/2);
-		return invert(p);
-	}
-	private void moveToLocation(Point location) {
-		Coords c = transform(new Coords(location.x, location.y));
-		System.out.println("centre loc:"+c.x+" "+c.y);
-		topLeftX =(int) ((c.x-this.getWidth()/2));
-		topLeftY =(int) ((c.y-this.getHeight()/2));
-	}
-	
-	
-	Coords centre = new Coords(0,0);
+
+	Coords centre = new Coords(0, 0);
+
 	public Point coordToScreen(Coords location) {
-		int x = location.x-centre.x;
-		int y = -location.y+centre.y;
-		x*=scale;
-		y*=scale;
-		x+=this.getWidth()/2;
-		y+=this.getHeight()/2;
+		int x = location.x - centre.x;
+		int y = -location.y + centre.y;
+		x *= scale;
+		y *= scale;
+		x += this.getWidth() / 2;
+		y += this.getHeight() / 2;
 
 		return new Point(x, y);
 	}
+
 	public Coords screenToCoord(Point screen) {
-		int x = screen.x-this.getWidth()/2;
-		int y = screen.y-this.getHeight()/2;
-		
-		x/=scale;
-		y/=scale;
-		
-		x+=centre.x;
-		y=centre.y-y;
+		int x = screen.x - this.getWidth() / 2;
+		int y = screen.y - this.getHeight() / 2;
+
+		x /= scale;
+		y /= scale;
+
+		x += centre.x;
+		y = centre.y - y;
 		return new Coords(x, y);
 	}
 
