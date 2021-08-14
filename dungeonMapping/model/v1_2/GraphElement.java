@@ -1,6 +1,5 @@
 package dungeonMapping.model.v1_2;
 
-import java.awt.Color;
 import java.io.Serializable;
 import java.util.HashMap;
 
