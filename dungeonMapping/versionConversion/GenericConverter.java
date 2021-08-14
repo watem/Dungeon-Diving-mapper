@@ -35,6 +35,7 @@ public class GenericConverter {
 
 	private static dungeonMapping.model.v1_2.DungeonMap convert(dungeonMapping.model.v1_1.DungeonMap map) {
 		dungeonMapping.model.v1_2.DungeonMap newMap = new dungeonMapping.model.v1_2.DungeonMap(map.getName());
+		newMap.setDistanceMultiplier(map.getDistanceMultiplier());
 		for (dungeonMapping.model.v1_1.Node n:map.getNodes()) {
 			dungeonMapping.model.v1_2.Node newN = newMap.addNode(n.getCoords().x, n.getCoords().y);
 			copyDescription(n.getDescription(), newN.getDescription());
