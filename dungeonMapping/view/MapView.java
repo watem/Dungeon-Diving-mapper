@@ -10,7 +10,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.HashSet;
 import javax.swing.JPanel;
 
-import dungeonMapping.model.v1_1.*;
+import dungeonMapping.model.v1_2.*;
 
 @SuppressWarnings("serial")
 public class MapView extends JPanel {

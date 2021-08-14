@@ -1,7 +1,7 @@
 package dungeonMapping.application;
 
 import dungeonMapping.controller.MapController;
-import dungeonMapping.model.v1_1.DungeonMap;
+import dungeonMapping.model.v1_2.DungeonMap;
 import dungeonMapping.view.MainPage;
 import dungeonMapping.serializing.Persistence;
 

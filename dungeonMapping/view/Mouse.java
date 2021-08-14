@@ -7,9 +7,9 @@ import java.awt.event.MouseMotionListener;
 
 import javax.swing.SwingUtilities;
 
-import dungeonMapping.model.v1_1.Coords;
-import dungeonMapping.model.v1_1.GraphElement;
-import dungeonMapping.model.v1_1.Node;
+import dungeonMapping.model.v1_2.Coords;
+import dungeonMapping.model.v1_2.GraphElement;
+import dungeonMapping.model.v1_2.Node;
 
 public class Mouse implements MouseListener, MouseMotionListener {
 	public static final int SELECT = 0;
@@ -37,8 +37,7 @@ public class Mouse implements MouseListener, MouseMotionListener {
 	public void mouseClicked(MouseEvent e) {
 		// TODO Auto-generated method stub
 		System.out.println(mode);
-		System.out
-				.println("Xl:" + parent.screenToCoord(e.getPoint()).x + " Yl:" + parent.screenToCoord(e.getPoint()).y);
+		System.out.println("Xl:" + parent.screenToCoord(e.getPoint()).x + " Yl:" + parent.screenToCoord(e.getPoint()).y);
 		System.out.println("Xp:" + e.getX() + " Yp:" + e.getY());
 		System.out.println(parent.getElementAt(e.getPoint()));
 

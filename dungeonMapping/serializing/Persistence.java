@@ -4,7 +4,7 @@ import java.io.File;
 
 import dungeonMapping.application.MappingApplication;
 import dungeonMapping.model.DungeonWrapper;
-import dungeonMapping.model.v1_1.DungeonMap;
+import dungeonMapping.model.v1_2.DungeonMap;
 import dungeonMapping.versionConversion.GenericConverter;
 
 public class Persistence {
