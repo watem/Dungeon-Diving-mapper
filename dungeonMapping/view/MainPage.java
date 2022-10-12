@@ -1,5 +1,6 @@
 package dungeonMapping.view;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.util.ArrayList;
 
@@ -7,6 +8,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JColorChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -37,6 +39,8 @@ public class MainPage extends JFrame {
 	private JRadioButton mouseAddNodes = new JRadioButton("Add Nodes", false);
 	private JRadioButton mouseAddEdges = new JRadioButton("Add Edges", false);
 	private JRadioButton mouseEdit = new JRadioButton("Edit", false);
+	private JRadioButton mousePaint = new JRadioButton("Paint", false);
+	private JRadioButton mousePath = new JRadioButton("Path", false);
 	private ButtonGroup mouseBehaviour = new ButtonGroup();
 
 	private JLabel itemDetails = new JLabel();
@@ -47,6 +51,8 @@ public class MainPage extends JFrame {
 	private JButton saveButton = new JButton("save");
 	private JButton saveAsButton = new JButton("save as");
 	private JButton loadButton = new JButton("load");
+	private JButton colourPickerButton = new JButton("");
+	private Color currentColour = Color.black;
 
 	private JButton zoomIn = new JButton("Zoom +");
 	private JButton zoomOut = new JButton("Zoom -");
@@ -60,7 +66,10 @@ public class MainPage extends JFrame {
 		mouseBehaviour.add(mouseAddNodes);
 		mouseBehaviour.add(mouseAddEdges);
 		mouseBehaviour.add(mouseEdit);
-
+		mouseBehaviour.add(mousePaint);
+		mouseBehaviour.add(mousePath);
+		colourPickerButton.setBackground(currentColour);
+		
 		listeners();
 		menu();
 
@@ -94,6 +103,18 @@ public class MainPage extends JFrame {
 			}
 		});
 		mouseEdit.addActionListener(new java.awt.event.ActionListener() {
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				setMode();
+			}
+		});
+		mousePaint.addActionListener(new java.awt.event.ActionListener() {
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				setMode();
+			}
+		});
+		mousePath.addActionListener(new java.awt.event.ActionListener() {
 			@Override
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				setMode();
@@ -142,6 +163,13 @@ public class MainPage extends JFrame {
 				loadAs();
 			}
 		});
+		colourPickerButton.addActionListener(new java.awt.event.ActionListener() {
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				currentColour = JColorChooser.showDialog(null, "Choose a color", currentColour);
+				colourPickerButton.setBackground(currentColour);
+			}
+		});
 
 		zoomIn.addActionListener(new java.awt.event.ActionListener() {
 			@Override
@@ -177,31 +205,71 @@ public class MainPage extends JFrame {
 		layout.setAutoCreateContainerGaps(true);
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
-				.addGroup(layout.createSequentialGroup().addComponent(newMapButton).addComponent(deleteMapButton)
-						.addComponent(saveButton).addComponent(saveAsButton).addComponent(loadButton))
-				.addGroup(layout.createSequentialGroup().addComponent(mapView).addGroup(layout.createParallelGroup()
-						.addGroup(layout.createSequentialGroup().addComponent(mouseDefault).addComponent(mouseAddNodes)
-								.addComponent(mouseAddEdges).addComponent(mouseEdit))
-						.addGroup(
-								layout.createSequentialGroup().addComponent(editButton).addComponent(deleteItemButton))
-						.addGroup(layout.createSequentialGroup().addComponent(nodesShownButton)
-								.addComponent(disconnectedNodes))
-						.addComponent(itemDetails)
-						.addGroup(layout.createSequentialGroup().addComponent(disMulLabel).addComponent(disMulField))
-						.addGroup(layout.createSequentialGroup().addComponent(zoomIn).addComponent(zoomOut)))));
+				.addGroup(layout.createSequentialGroup()
+						.addComponent(newMapButton)
+						.addComponent(deleteMapButton)
+						.addComponent(saveButton)
+						.addComponent(saveAsButton)
+						.addComponent(loadButton))
+				.addGroup(layout.createSequentialGroup()
+						.addComponent(mapView)
+						.addGroup(layout.createParallelGroup()
+								.addGroup(layout.createSequentialGroup()
+										.addComponent(mouseDefault)
+										.addComponent(mouseAddNodes)
+										.addComponent(mouseAddEdges)
+										.addComponent(mouseEdit)
+										.addComponent(mousePaint)
+										.addComponent(mousePath))
+								.addGroup(layout.createSequentialGroup()
+										.addComponent(editButton)
+										.addComponent(deleteItemButton))
+								.addGroup(layout.createSequentialGroup()
+										.addComponent(nodesShownButton)
+										.addComponent(disconnectedNodes))
+								.addComponent(itemDetails)
+								.addGroup(layout.createSequentialGroup()
+										.addComponent(disMulLabel)
+										.addComponent(disMulField))
+								.addComponent(colourPickerButton)
+								.addGroup(layout.createSequentialGroup()
+										.addComponent(zoomIn)
+										.addComponent(zoomOut))
+						)
+				)
+		);
+		
 		layout.setVerticalGroup(layout.createSequentialGroup()
-				.addGroup(layout.createParallelGroup().addComponent(newMapButton).addComponent(deleteMapButton)
-						.addComponent(saveButton).addComponent(saveAsButton).addComponent(loadButton))
-				.addGroup(layout.createParallelGroup().addComponent(mapView).addGroup(layout.createSequentialGroup()
-						.addGroup(layout.createParallelGroup().addComponent(mouseDefault).addComponent(mouseAddNodes)
-								.addComponent(mouseAddEdges).addComponent(mouseEdit))
-						.addGroup(layout.createParallelGroup().addComponent(editButton).addComponent(deleteItemButton))
-						.addGroup(layout.createParallelGroup().addComponent(nodesShownButton)
-								.addComponent(disconnectedNodes))
-
-						.addComponent(itemDetails)
-						.addGroup(layout.createParallelGroup().addComponent(disMulLabel).addComponent(disMulField))
-						.addGroup(layout.createParallelGroup().addComponent(zoomIn).addComponent(zoomOut)))));
+				.addGroup(layout.createParallelGroup()
+						.addComponent(newMapButton)
+						.addComponent(deleteMapButton)
+						.addComponent(saveButton)
+						.addComponent(saveAsButton)
+						.addComponent(loadButton))
+				.addGroup(layout.createParallelGroup()
+						.addComponent(mapView)
+						.addGroup(layout.createSequentialGroup()
+								.addGroup(layout.createParallelGroup()
+										.addComponent(mouseDefault)
+										.addComponent(mouseAddNodes)
+										.addComponent(mouseAddEdges)
+										.addComponent(mouseEdit)
+										.addComponent(mousePaint)
+										.addComponent(mousePath))
+								.addGroup(layout.createParallelGroup()
+										.addComponent(editButton)
+										.addComponent(deleteItemButton))
+								.addGroup(layout.createParallelGroup()
+										.addComponent(nodesShownButton)
+										.addComponent(disconnectedNodes))
+								.addComponent(itemDetails)
+								.addGroup(layout.createParallelGroup()
+										.addComponent(disMulLabel)
+										.addComponent(disMulField))
+								.addComponent(colourPickerButton)
+								.addGroup(layout.createParallelGroup()
+										.addComponent(zoomIn)
+										.addComponent(zoomOut)))));
 		layout.linkSize(SwingConstants.HORIZONTAL,
 				new java.awt.Component[] { mouseAddNodes, mouseDefault, mouseAddEdges });
 //		layout.linkSize(SwingConstants.VERTICAL, new java.awt.Component[] {});
@@ -209,6 +277,11 @@ public class MainPage extends JFrame {
 		layout.linkSize(SwingConstants.VERTICAL, new java.awt.Component[] { disMulLabel, disMulField });
 		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] { disMulLabel, disMulField });
 
+		int size = 2*colourPickerButton.getPreferredSize().height;
+		colourPickerButton.setSize(size, size);
+		colourPickerButton.setMaximumSize(colourPickerButton.getSize());
+		colourPickerButton.setMinimumSize(colourPickerButton.getSize());
+		
 		mapView.setMinimumSize(new Dimension(100, 100));
 		mapView.setPreferredSize(new Dimension(700, 700));
 		pack();
@@ -224,6 +297,7 @@ public class MainPage extends JFrame {
 	}
 
 	private void setMode() {
+		mapView.path = null;
 		if (mouseDefault.isSelected()) {
 			mapView.ml.mode = Mouse.SELECT;
 		} else if (mouseAddNodes.isSelected()) {
@@ -233,6 +307,10 @@ public class MainPage extends JFrame {
 			mapView.ml.mode = Mouse.ADD_EDGE;
 		} else if (mouseEdit.isSelected()) {
 			mapView.ml.mode = Mouse.EDIT;
+		} else if (mousePaint.isSelected()) {
+			mapView.ml.mode = Mouse.PAINT;
+		} else if (mousePath.isSelected()) {
+			mapView.ml.mode = Mouse.PATH;
 		}
 	}
 
@@ -251,6 +329,9 @@ public class MainPage extends JFrame {
 	}
 
 	void setLastSelected(GraphElement e) {
+//		if(lastSelectedItem!=null) {
+//			mapView.path = AstarNode.findBestPath(mapView.m, (dungeonMapping.model.v1_2.Node)lastSelectedItem, (dungeonMapping.model.v1_2.Node)e);
+//		}
 		this.lastSelectedItem = e;
 		if (lastSelectedItem == null) {
 			itemDetails.setText("");
@@ -262,6 +343,10 @@ public class MainPage extends JFrame {
 
 	GraphElement getLastSelected() {
 		return lastSelectedItem;
+	}
+
+	public Color getCurrentColour() {
+		return new Color(currentColour.getRed(), currentColour.getGreen(), currentColour.getBlue(), currentColour.getAlpha());
 	}
 
 	public ArrayList<DescriptionDialog> getOpenDescriptions() {

@@ -8,6 +8,8 @@ import java.awt.Point;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 import java.util.HashSet;
+import java.util.List;
+
 import javax.swing.JPanel;
 
 import dungeonMapping.model.v1_2.*;
@@ -24,6 +26,8 @@ public class MapView extends JPanel {
 	double r = 4.;
 	double scale = 1;
 	int epsilon = 2;
+	
+	List<Node> path = null;
 
 	Mouse ml = new Mouse(this);
 
@@ -90,6 +94,30 @@ public class MapView extends JPanel {
 					}
 				}
 			}
+		}
+		Node previous = null;
+		if (path==null) {
+			return;
+		}
+		for(Node n:path) {
+			g2d.setColor(Color.RED);
+			Point pos = coordToScreen(n.getCoords());
+			if (pos.x + r > 0 && pos.y + r > 0 && pos.x - r < this.getWidth() && pos.y - r < this.getHeight()) {
+				g2d.fill(new Ellipse2D.Double(pos.x - r, pos.y - r, 2 * r, 2 * r));
+			}
+			if (previous!=null) {
+				Edge e = m.getEdge(previous, n);
+				Point pos1 = coordToScreen(m.getNode(e.getNode1()).getCoords());
+				Point pos2 = coordToScreen(m.getNode(e.getNode2()).getCoords());
+				if ((pos1.x + r > 0 && pos1.y + r > 0 && pos1.x - r < this.getWidth()
+						&& pos1.y - r < this.getHeight())
+						|| (pos2.x + r > 0 && pos2.y + r > 0 && pos2.x - r < this.getWidth()
+								&& pos2.y - r < this.getHeight())) {
+					g2d.drawLine(pos1.x, pos1.y, pos2.x, pos2.y);
+				}
+			}
+			
+			previous = n;
 		}
 	}
 

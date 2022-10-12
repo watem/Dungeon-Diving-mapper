@@ -68,6 +68,18 @@ public class DungeonMap implements Serializable {
 		}
 		return edgesById.get(id);
 	}
+	public Edge getEdge(Node n1, Node n2) {
+		if (n1==null||n2==null||n1==n2) {
+			return null;
+		}
+		for(String s:n1.getEdges()) {
+			Edge e = getEdge(s);
+			if (getNode(e.getNode1()).equals(n2)||getNode(e.getNode2()).equals(n2)) {
+				return e;
+			}
+		}
+		return null;
+	}
 
 	public Node getNode(String id) {
 		if (nodesById == null) {

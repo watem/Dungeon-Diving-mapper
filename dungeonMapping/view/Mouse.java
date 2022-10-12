@@ -10,12 +10,15 @@ import javax.swing.SwingUtilities;
 import dungeonMapping.model.v1_2.Coords;
 import dungeonMapping.model.v1_2.GraphElement;
 import dungeonMapping.model.v1_2.Node;
+import findPath.AstarNode;
 
 public class Mouse implements MouseListener, MouseMotionListener {
 	public static final int SELECT = 0;
 	public static final int ADD_NODE = 1;
 	public static final int ADD_EDGE = 2;
 	public static final int EDIT = 3;
+	public static final int PAINT = 4;
+	public static final int PATH = 5;
 
 	private Node draggedNode;
 
@@ -43,15 +46,15 @@ public class Mouse implements MouseListener, MouseMotionListener {
 
 		if (mode == ADD_NODE) {
 			Coords p = parent.screenToCoord(e.getPoint());
-			parent.m.addNode(p.x, p.y);
+			parent.m.addNode(p.x, p.y).getDescription().colour = parent.parent.getCurrentColour();
 			parent.parent.refresh();
 		} else if (mode == SELECT) {
 			GraphElement ge = parent.getElementAt(e.getPoint());
+			parent.parent.setLastSelected(ge);
 			if (ge == null) {
 				return;
 			}
 
-			parent.parent.setLastSelected(ge);
 			if (SwingUtilities.isRightMouseButton(e)) {
 				DescriptionDialog d = new DescriptionDialog(ge, parent.parent);
 				d.setVisible(true);
@@ -69,7 +72,7 @@ public class Mouse implements MouseListener, MouseMotionListener {
 				System.out.println("new " + newSelected);
 				if (newSelected instanceof Node) {
 					System.out.println("new edge being created");
-					parent.m.connectNodes((Node) lastSelected, (Node) newSelected);
+					parent.m.connectNodes((Node) lastSelected, (Node) newSelected).getDescription().colour = parent.parent.getCurrentColour();
 					parent.parent.setLastSelected(newSelected);
 					parent.parent.refresh();
 				}
@@ -88,6 +91,24 @@ public class Mouse implements MouseListener, MouseMotionListener {
 			DescriptionDialog d = new DescriptionDialog(ge, parent.parent);
 			d.setVisible(true);
 			parent.parent.getOpenDescriptions().add(d);
+		} else if (mode == PAINT) {
+			GraphElement ge = parent.getElementAt(e.getPoint());
+			if (ge == null) {
+				return;
+			}
+			ge.getDescription().colour = parent.parent.getCurrentColour();
+		} else if (mode == PATH) {
+			GraphElement ge = parent.getElementAt(e.getPoint());
+			if (parent.parent.getLastSelected() instanceof Node && ge instanceof Node) {
+				parent.path = AstarNode.findBestPath(parent.m, (Node) parent.parent.getLastSelected(), (Node) ge);
+			} else {
+				parent.path = null;
+			}
+			parent.parent.setLastSelected(ge);
+			if (ge == null) {
+				return;
+			}
+			
 		}
 	}
 
