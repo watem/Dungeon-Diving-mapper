@@ -29,6 +29,8 @@ public class GenericConverter {
 		switch (wrapper.getVersion()) {
 		case "v1.1":
 			wrapper = new DungeonWrapper(convert((dungeonMapping.model.v1_1.DungeonMap) wrapper.dungeon), "v1.2");
+		case "v1.2":
+			wrapper = new DungeonWrapper(convert((dungeonMapping.model.v1_2.DungeonMap) wrapper.dungeon), "v1.3");
 		}
 		return wrapper.dungeon;
 	}
@@ -53,7 +55,36 @@ public class GenericConverter {
 		return newMap;
 	}
 	
+	private static dungeonMapping.model.v1_3.DungeonMap convert(dungeonMapping.model.v1_2.DungeonMap map) {
+		dungeonMapping.model.v1_3.DungeonMap newMap = new dungeonMapping.model.v1_3.DungeonMap(map.getName());
+		newMap.setDistanceMultiplier(map.getDistanceMultiplier());
+		for (dungeonMapping.model.v1_2.Node n:map.getNodes()) {
+			dungeonMapping.model.v1_3.Node newN = newMap.addNode(n.getCoords().x, n.getCoords().y, 0);
+			copyDescription(n.getDescription(), newN.getDescription());
+		}
+		for (dungeonMapping.model.v1_2.Edge e:map.getEdges()) {
+			dungeonMapping.model.v1_2.Node n1 = map.getNode(e.getNode1());
+			dungeonMapping.model.v1_2.Node n2 = map.getNode(e.getNode2());
+			dungeonMapping.model.v1_3.Node newN1 = newMap.getNodeAt(n1.getCoords().x, n1.getCoords().y);
+			dungeonMapping.model.v1_3.Node newN2 = newMap.getNodeAt(n2.getCoords().x, n2.getCoords().y);
+			
+			dungeonMapping.model.v1_3.Edge newE = newMap.connectNodes(newN1, newN2);
+			
+			copyDescription(e.getDescription(), newE.getDescription());
+		}
+		return newMap;
+	}
+	
 	private static void copyDescription(dungeonMapping.model.v1_1.GraphElement.Description oldD, dungeonMapping.model.v1_2.Description newD) {
+		newD.colour = oldD.colour;
+		newD.features = oldD.features;
+		newD.length = oldD.length;
+		newD.name = oldD.name;
+		newD.note = oldD.note;
+		newD.treasure = oldD.treasure;
+		newD.width = oldD.width;
+	}
+	private static void copyDescription(dungeonMapping.model.v1_2.Description oldD, dungeonMapping.model.v1_3.Description newD) {
 		newD.colour = oldD.colour;
 		newD.features = oldD.features;
 		newD.length = oldD.length;

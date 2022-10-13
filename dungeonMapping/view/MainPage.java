@@ -2,6 +2,7 @@ package dungeonMapping.view;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.io.File;
 import java.util.ArrayList;
 
 import javax.swing.ButtonGroup;
@@ -9,17 +10,19 @@ import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import dungeonMapping.application.MappingApplication;
 import dungeonMapping.controller.MapController;
-import dungeonMapping.model.v1_2.DungeonMap;
-import dungeonMapping.model.v1_2.GraphElement;
+import dungeonMapping.model.v1_3.DungeonMap;
+import dungeonMapping.model.v1_3.GraphElement;
 import dungeonMapping.serializing.Persistence;
 
 @SuppressWarnings("serial")
@@ -59,6 +62,14 @@ public class MainPage extends JFrame {
 
 	private JCheckBox nodesShownButton = new JCheckBox("Show nodes?", true);
 	private JCheckBox disconnectedNodes = new JCheckBox("Highlight disconnected nodes?", false);
+	private JCheckBox showZLevel = new JCheckBox("Show Z Level?", true);
+	private JCheckBox showColour = new JCheckBox("Show Colour?", true);
+
+	private JLabel zLevelLabel = new JLabel("height level");
+	private JTextField zLevelField = new JTextField();
+	private JLabel heightMulLabel = new JLabel("height distance multiplier");
+	private JTextField heightMulField = new JTextField();
+	private int currentZLevel = 0;
 
 	public MainPage() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -145,6 +156,13 @@ public class MainPage extends JFrame {
 			DungeonMap m = MappingApplication.getDungeon();
 			m.setDistanceMultiplier(Double.parseDouble(disMulField.getText()));
 		});
+		TextListener.addChangeListener(heightMulField, e -> {
+			DungeonMap m = MappingApplication.getDungeon();
+			m.setHeightDistanceMultiplier(Double.parseDouble(heightMulField.getText()));
+		});
+		TextListener.addChangeListener(zLevelField, e -> {
+			currentZLevel = Integer.parseInt(zLevelField.getText());
+		});
 		saveAsButton.addActionListener(new java.awt.event.ActionListener() {
 			@Override
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -196,6 +214,18 @@ public class MainPage extends JFrame {
 				mapView.refresh();
 			}
 		});
+		showZLevel.addActionListener(new java.awt.event.ActionListener() {
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				mapView.refresh();
+			}
+		});
+		showColour.addActionListener(new java.awt.event.ActionListener() {
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				mapView.refresh();
+			}
+		});
 	}
 
 	public void menu() {
@@ -227,10 +257,19 @@ public class MainPage extends JFrame {
 								.addGroup(layout.createSequentialGroup()
 										.addComponent(nodesShownButton)
 										.addComponent(disconnectedNodes))
+								.addGroup(layout.createSequentialGroup()
+										.addComponent(showZLevel)
+										.addComponent(showColour))
 								.addComponent(itemDetails)
 								.addGroup(layout.createSequentialGroup()
 										.addComponent(disMulLabel)
 										.addComponent(disMulField))
+								.addGroup(layout.createSequentialGroup()
+										.addComponent(heightMulLabel)
+										.addComponent(heightMulField))
+								.addGroup(layout.createSequentialGroup()
+										.addComponent(zLevelLabel)
+										.addComponent(zLevelField))
 								.addComponent(colourPickerButton)
 								.addGroup(layout.createSequentialGroup()
 										.addComponent(zoomIn)
@@ -262,10 +301,19 @@ public class MainPage extends JFrame {
 								.addGroup(layout.createParallelGroup()
 										.addComponent(nodesShownButton)
 										.addComponent(disconnectedNodes))
+								.addGroup(layout.createParallelGroup()
+										.addComponent(showZLevel)
+										.addComponent(showColour))
 								.addComponent(itemDetails)
 								.addGroup(layout.createParallelGroup()
 										.addComponent(disMulLabel)
 										.addComponent(disMulField))
+								.addGroup(layout.createParallelGroup()
+										.addComponent(heightMulLabel)
+										.addComponent(heightMulField))
+								.addGroup(layout.createParallelGroup()
+										.addComponent(zLevelLabel)
+										.addComponent(zLevelField))
 								.addComponent(colourPickerButton)
 								.addGroup(layout.createParallelGroup()
 										.addComponent(zoomIn)
@@ -274,13 +322,14 @@ public class MainPage extends JFrame {
 				new java.awt.Component[] { mouseAddNodes, mouseDefault, mouseAddEdges });
 //		layout.linkSize(SwingConstants.VERTICAL, new java.awt.Component[] {});
 //		layout.linkSize(SwingConstants.VERTICAL, new java.awt.Component[] {newMapButton});
-		layout.linkSize(SwingConstants.VERTICAL, new java.awt.Component[] { disMulLabel, disMulField });
-		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] { disMulLabel, disMulField });
+		layout.linkSize(SwingConstants.VERTICAL, new java.awt.Component[] { disMulLabel, disMulField, heightMulLabel, heightMulField, zLevelLabel, zLevelField });
+		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] { disMulLabel, disMulField, heightMulLabel, heightMulField, zLevelLabel, zLevelField });
 
 		int size = 2*colourPickerButton.getPreferredSize().height;
 		colourPickerButton.setSize(size, size);
 		colourPickerButton.setMaximumSize(colourPickerButton.getSize());
 		colourPickerButton.setMinimumSize(colourPickerButton.getSize());
+		zLevelField.setText("0");
 		
 		mapView.setMinimumSize(new Dimension(100, 100));
 		mapView.setPreferredSize(new Dimension(700, 700));
@@ -293,6 +342,7 @@ public class MainPage extends JFrame {
 			mapView.set(m);
 			lastSelectedItem = null;
 			refresh();
+			mapView.refresh();
 		}
 	}
 
@@ -315,14 +365,15 @@ public class MainPage extends JFrame {
 	}
 
 	void refresh() {
-		mapView.refresh();
 		for (DescriptionDialog d : getOpenDescriptions()) {
 			d.refresh();
 		}
 		DungeonMap m = MappingApplication.getDungeon();
 		if (m != null) {
 			disMulField.setText("" + m.getDistanceMultiplier());
+			heightMulField.setText("" + m.getHeightDistanceMultiplier());
 		}
+		mapView.refresh();
 		this.setTitle("Mapping tool: " + m.getName());
 		MappingApplication.quickSave();
 		// show information of selected item
@@ -363,24 +414,47 @@ public class MainPage extends JFrame {
 	}
 
 	private void saveAs() {
-		String s = (String) JOptionPane.showInputDialog(this, "name of save file", "save as", JOptionPane.PLAIN_MESSAGE,
-				null, null, "dungeon");
-		DungeonMap m = MappingApplication.getDungeon();
-		m.setName(s);
-		Persistence.setFilename(s);
-		MappingApplication.save();
-		MappingApplication.quickSave();
-		refreshMap(m);
+		File p = getPath("Save As.");
+		if (p != null) {
+			DungeonMap m = MappingApplication.getDungeon();
+			m.setName(p.getName());
+			Persistence.setPath(p);
+			MappingApplication.save();
+			MappingApplication.quickSave();
+			refreshMap(m);
+		}
 	}
 
 	private void loadAs() {
-		String s = (String) JOptionPane.showInputDialog(this, "name of save file", "load", JOptionPane.PLAIN_MESSAGE,
-				null, null, "dungeon");
-		if (s == null) {
-			return;
+		File p = getPath("Load As.");
+		if (p != null) {
+			Persistence.setPath(p);
+			refreshMap(MappingApplication.resetDungeon());
 		}
-		Persistence.setFilename(s);
-		refreshMap(MappingApplication.resetDungeon());
+	}
+	
+	private File getPath(String title) {
+		JFileChooser chooser = new JFileChooser();
+		chooser.setCurrentDirectory(new java.io.File(Persistence.folder));
+		chooser.setDialogTitle(title);
+		
+		FileNameExtensionFilter filter = new FileNameExtensionFilter(
+		        "Map file", Persistence.extension);
+		chooser.setFileFilter(filter);
+		int returnVal = chooser.showOpenDialog(this);
+	    if(returnVal == JFileChooser.APPROVE_OPTION) {
+	    	File f = chooser.getSelectedFile();
+	    	if (f == null) {
+	    		return null;
+	    	}
+	    	String filename = f.getName();
+	    	if (filename.length() < Persistence.extension.length() + 1 || !filename.substring(
+	    			filename.length() - Persistence.extension.length() - 1).equals("." + Persistence.extension)) {
+	    		f = new File(f.toPath() + "." + Persistence.extension);
+	    	}
+	    	return f;
+	    }
+	    return null;
 	}
 
 	public boolean areNodesShown() {
@@ -390,15 +464,22 @@ public class MainPage extends JFrame {
 	public boolean areDisconnectedNodesHighlighted() {
 		return disconnectedNodes.isSelected();
 	}
+	
+	public boolean areZLevelsShown() {
+		return showZLevel.isSelected();
+	}
+	
+	public boolean areColoursShown() {
+		return showColour.isSelected();
+	}
 
 	private void newMap() {
-		String s = (String) JOptionPane.showInputDialog(this, "name of new map", "load", JOptionPane.PLAIN_MESSAGE,
-				null, null, "dungeon");
-		if (s == null) {
-			return;
+		File p = getPath("New Map");
+		if (p != null) {
+			MapController.newMap(p, true);
+			refresh();
+			mapView.set(MappingApplication.getDungeon());
 		}
-		MapController.newMap(s, true);
-		refresh();
 	}
 
 	private void deleteMap() {
@@ -407,9 +488,12 @@ public class MainPage extends JFrame {
 
 		if (option == JOptionPane.OK_OPTION) {
 			System.out.print("test");
-			DungeonMap m = MappingApplication.getDungeon();
-			MapController.deleteMap(m.getName());
+			MapController.deleteMap(Persistence.getPath());
 			refreshMap(MappingApplication.getDungeon());
 		}
+	}
+	
+	public int getCurrentZLevel() {
+		return currentZLevel;
 	}
 }

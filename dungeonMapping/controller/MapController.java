@@ -6,29 +6,28 @@ import dungeonMapping.application.MappingApplication;
 import dungeonMapping.serializing.Persistence;
 
 public class MapController {
-	public static boolean newMap(String name, boolean save) {
+	public static boolean newMap(File path, boolean save) {
 		if (save) {
 			MappingApplication.save();
 		}
-		Persistence.setFilename(name);
+		Persistence.setPath(path);
 		MappingApplication.resetDungeon();
 
-		File newMap = new File(name);
-		if (newMap.exists()) {
+		if (path.exists()) {
 			return false;
 		}
 		MappingApplication.save();
 		return true;
 	}
 
-	public static boolean deleteMap(String name) {
-		boolean isCurrentMap = MappingApplication.getDungeon().getName().equals(name);
-		File map = new File(Persistence.folder + Persistence.clean(name) + Persistence.extension);
-		boolean deleted = map.delete();
+	public static boolean deleteMap(File path) {
+		boolean isCurrentMap = MappingApplication.getDungeon().getName().equals(path.getName());
+		boolean deleted = path.delete();
 		if (isCurrentMap) {
 			Persistence.reset();
 		}
 		return deleted;
 	}
+	
 
 }

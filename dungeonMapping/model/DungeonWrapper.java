@@ -1,14 +1,17 @@
 package dungeonMapping.model;
 
 import java.io.Serializable;
-import dungeonMapping.model.v1_2.DungeonMap;
+import java.nio.file.Path;
+
+import dungeonMapping.model.v1_3.DungeonMap;
 
 public class DungeonWrapper implements Serializable {
 
 	private static final long serialVersionUID = -6017107472768512187L;
 	public final Object dungeon;
-	private String version = "v1.2";
-	public static final String currentVersion = "v1.2";
+	private String version = "v1.3";
+	public static final String currentVersion = "v1.3";
+	public Path path;
 
 	public static int getMajorVersion(String version) {
 		version = version.replaceFirst("v", "");
@@ -26,9 +29,9 @@ public class DungeonWrapper implements Serializable {
 		this.dungeon = dungeon;
 	}
 
-	public DungeonWrapper(DungeonMap dungeon, String version) {
+	public DungeonWrapper(Object dungeonMap, String version) {
 		super();
-		this.dungeon = dungeon;
+		this.dungeon = dungeonMap;
 		this.version = version;
 	}
 

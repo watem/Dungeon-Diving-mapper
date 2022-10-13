@@ -1,14 +1,13 @@
 package findPath;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.PriorityQueue;
 
-import dungeonMapping.model.v1_2.DungeonMap;
-import dungeonMapping.model.v1_2.Edge;
-import dungeonMapping.model.v1_2.Node;
+import dungeonMapping.model.v1_3.DungeonMap;
+import dungeonMapping.model.v1_3.Edge;
+import dungeonMapping.model.v1_3.Node;
 
 public class AstarNode {
 	double distanceTraveled;
@@ -25,17 +24,17 @@ public class AstarNode {
 		path.add(source);
 		currentNode = source;
 		destination = sink;
-		distanceRemaining = distance(source, sink);
+		distanceRemaining = distance(source, sink, map);
 		this.map = map;
 	}
 	public AstarNode(AstarNode parent, Node next) {
+		map = parent.map;
 		path = new ArrayList<>(parent.path);
 		Node previous = parent.currentNode;
 		path.add(next);
-		distanceTraveled = parent.distanceTraveled + distance(previous, next);
+		distanceTraveled = parent.distanceTraveled + distance(previous, next, map);
 		destination = parent.destination;
-		distanceRemaining = distance(next, destination);
-		map = parent.map;
+		distanceRemaining = distance(next, destination, map);
 		currentNode = next;
 	}
 	
@@ -68,13 +67,14 @@ public class AstarNode {
 	}
 
 	
-	private static double distance(Node n1, Node n2) {
+	private static double distance(Node n1, Node n2, DungeonMap m) {
 		if (n1==null||n2==null) {
 			return Double.MAX_VALUE;
 		}
-		int dx = n1.getCoords().x - n2.getCoords().x;
-		int dy = n1.getCoords().y - n2.getCoords().y;
-		return Math.sqrt(dx*dx+dy*dy);
+		double dx = (n1.getCoords().x - n2.getCoords().x) * m.getDistanceMultiplier();
+		double dy = (n1.getCoords().y - n2.getCoords().y) * m.getDistanceMultiplier();
+		double dz = (n1.getCoords().z - n2.getCoords().z) * m.getHeightDistanceMultiplier();
+		return Math.sqrt(dx*dx+dy*dy+dz*dz);
 	}
 	private double eval() {
 		return distanceTraveled+distanceRemaining;

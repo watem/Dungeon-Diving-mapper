@@ -7,9 +7,9 @@ import java.awt.event.MouseMotionListener;
 
 import javax.swing.SwingUtilities;
 
-import dungeonMapping.model.v1_2.Coords;
-import dungeonMapping.model.v1_2.GraphElement;
-import dungeonMapping.model.v1_2.Node;
+import dungeonMapping.model.v1_3.Coords;
+import dungeonMapping.model.v1_3.GraphElement;
+import dungeonMapping.model.v1_3.Node;
 import findPath.AstarNode;
 
 public class Mouse implements MouseListener, MouseMotionListener {
@@ -38,7 +38,6 @@ public class Mouse implements MouseListener, MouseMotionListener {
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		// TODO Auto-generated method stub
 		System.out.println(mode);
 		System.out.println("Xl:" + parent.screenToCoord(e.getPoint()).x + " Yl:" + parent.screenToCoord(e.getPoint()).y);
 		System.out.println("Xp:" + e.getX() + " Yp:" + e.getY());
@@ -46,7 +45,7 @@ public class Mouse implements MouseListener, MouseMotionListener {
 
 		if (mode == ADD_NODE) {
 			Coords p = parent.screenToCoord(e.getPoint());
-			parent.m.addNode(p.x, p.y).getDescription().colour = parent.parent.getCurrentColour();
+			parent.m.addNode(p.x, p.y, p.z).getDescription().colour = parent.parent.getCurrentColour();
 			parent.parent.refresh();
 		} else if (mode == SELECT) {
 			GraphElement ge = parent.getElementAt(e.getPoint());
@@ -158,7 +157,7 @@ public class Mouse implements MouseListener, MouseMotionListener {
 			}
 			// System.out.println("dragging "+draggedNode);
 			Coords p = parent.screenToCoord(e.getPoint());
-			draggedNode.moveNode(p.x, p.y);
+			draggedNode.moveNode(p.x, p.y, p.z);
 			parent.parent.refresh();
 		} else if (SwingUtilities.isRightMouseButton(e)) {
 			Point pCentre = parent.coordToScreen(startingCentre);

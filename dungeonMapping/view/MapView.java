@@ -12,7 +12,7 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
-import dungeonMapping.model.v1_2.*;
+import dungeonMapping.model.v1_3.*;
 
 @SuppressWarnings("serial")
 public class MapView extends JPanel {
@@ -73,22 +73,34 @@ public class MapView extends JPanel {
 							&& pos1.y - r < this.getHeight())
 							|| (pos2.x + r > 0 && pos2.y + r > 0 && pos2.x - r < this.getWidth()
 									&& pos2.y - r < this.getHeight())) {
-						g2d.setColor(e.getDescription().colour);
+						if (parent.areColoursShown()) {
+							g2d.setColor(e.getDescription().colour);
+						}
 						g2d.drawLine(pos1.x, pos1.y, pos2.x, pos2.y);
 					}
 				}
 			}
 			if (nodeSet != null && parent.areNodesShown()) {
+				g2d.setFont(getFont().deriveFont(3));
 				for (Node n : m.getNodes()) {
 //			    	Coords pos = transform(n.getCoords());
 					Point pos = coordToScreen(n.getCoords());
 					if (pos.x + r > 0 && pos.y + r > 0 && pos.x - r < this.getWidth() && pos.y - r < this.getHeight()) {
-						g2d.setColor(n.getDescription().colour);
+						if (parent.areColoursShown()) {
+							g2d.setColor(n.getDescription().colour);
+						}
 						if (parent.areDisconnectedNodesHighlighted() && n.getEdges().size() < 1) {
 							g2d.setColor(Color.CYAN);
 							g2d.fill(new Ellipse2D.Double(pos.x - 3 * r, pos.y - 3 * r, 6 * r, 6 * r));
 						} else {
 							g2d.fill(new Ellipse2D.Double(pos.x - r, pos.y - r, 2 * r, 2 * r));
+						}
+						if (parent.areZLevelsShown()) {
+							g2d.setColor(Color.LIGHT_GRAY);
+							
+							g2d.drawString(String.valueOf(n.getCoords().z),(float)(pos.x - r), (float)(pos.y - r));
+							
+							g2d.setColor(Color.BLACK);
 						}
 
 					}
@@ -169,7 +181,7 @@ public class MapView extends JPanel {
 		refresh();
 	}
 
-	Coords centre = new Coords(0, 0);
+	Coords centre = new Coords(0, 0, 0);
 
 	public Point coordToScreen(Coords location) {
 		int x = location.x - centre.x;
@@ -191,7 +203,7 @@ public class MapView extends JPanel {
 
 		x += centre.x;
 		y = centre.y - y;
-		return new Coords(x, y);
+		return new Coords(x, y, parent.getCurrentZLevel());
 	}
 
 }

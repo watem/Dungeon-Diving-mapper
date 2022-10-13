@@ -13,7 +13,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-import dungeonMapping.model.v1_2.*;
+import dungeonMapping.model.v1_3.*;
 
 @SuppressWarnings("serial")
 public class DescriptionDialog extends JDialog {
