@@ -6,7 +6,7 @@ import dungeonMapping.view.MainPage;
 import dungeonMapping.serializing.Persistence;
 
 public class MappingApplication {
-	public static final String version = "1.1";
+	public static final String version = "1.3";
 	private static DungeonMap d;
 
 	public static void main(String[] args) {

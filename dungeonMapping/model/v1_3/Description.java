@@ -5,10 +5,9 @@ import java.io.Serializable;
 
 
 public class Description implements Serializable {
-	@SuppressWarnings("unused")
 	private static final long serialVersionUID = -5645613373273383286L;
 	public String name;
-	public int width, length;
+	public int width, length, height;
 	public String features, treasure, note;
 	public Color colour = Color.BLACK;
 	
@@ -56,4 +55,11 @@ public class Description implements Serializable {
 	public void setColour(Color colour) {
 		this.colour = colour;
 	}
+	public int getHeight() {
+		return height;
+	}
+	public void setHeight(int height) {
+		this.height = height;
+	}
+	
 }

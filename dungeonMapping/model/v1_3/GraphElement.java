@@ -17,7 +17,7 @@ public class GraphElement implements Serializable {
 		this.id = id;
 	}
 
-	private DungeonMap m;
+	DungeonMap m;
 	private static HashMap<String, GraphElement> elementsByName = new HashMap<String, GraphElement>();
 
 	public GraphElement(DungeonMap m) {
@@ -33,8 +33,11 @@ public class GraphElement implements Serializable {
 			d = new Description();
 		}
 		if (this instanceof Edge) {
-			d.length = (int) (((Edge) this).getLength() * m.getDistanceMultiplier());
+			d.length = (int) ((Edge) this).getLength();
+		} else if (this instanceof Node) {
+			d.height = ((Node) this).getCoords().z;
 		}
+		
 		if (d.name == null) {
 			d.name = "";
 		}
@@ -49,4 +52,6 @@ public class GraphElement implements Serializable {
 		}
 		return d;
 	}
+
+	
 }

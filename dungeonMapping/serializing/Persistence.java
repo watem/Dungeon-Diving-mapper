@@ -43,6 +43,11 @@ public class Persistence {
 		MappingApplication.setDungeon(dungeon);
 		return dungeon;
 	}
+	
+	public static DungeonMap load(File p) {
+		setPath(p);
+		return load();
+	}
 
 	public static DungeonMap reset() {
 		checkFolder();

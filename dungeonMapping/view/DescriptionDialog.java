@@ -13,6 +13,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+import dungeonMapping.controller.MapController;
 import dungeonMapping.model.v1_3.*;
 
 @SuppressWarnings("serial")
@@ -23,6 +24,9 @@ public class DescriptionDialog extends JDialog {
 	JLabel lengthValLabel = new JLabel();
 	JLabel lengthLabel = new JLabel("length:");
 	JComponent lengthVal;
+	JLabel heightLabel = new JLabel("height:");
+	JTextField heightField = new JTextField();
+	
 
 	JLabel widthLabel = new JLabel("width:");
 	JTextField widthField = new JTextField();
@@ -42,11 +46,13 @@ public class DescriptionDialog extends JDialog {
 	MainPage parent;
 	GraphElement elem;
 	Description d;
+	private int startHeight;
 
 	public DescriptionDialog(GraphElement elem, MainPage parent) {
 		this.elem = elem;
 		this.parent = parent;
 		d = elem.getDescription();
+		startHeight = d.height;
 
 		refresh();
 		menu();
@@ -61,6 +67,13 @@ public class DescriptionDialog extends JDialog {
 		} else {
 			lengthVal = lengthValField;
 			lengthValField.setText("" + d.length);
+		}
+		
+		if (elem instanceof Node) {
+			heightField.setText("" + d.height);
+		} else {
+			heightLabel.setVisible(false);
+			heightField.setVisible(false);
 		}
 		widthField.setText("" + d.width);
 		nameField.setText(d.name);
@@ -78,24 +91,49 @@ public class DescriptionDialog extends JDialog {
 		layout.setAutoCreateContainerGaps(true);
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
-				.addGroup(layout.createSequentialGroup().addComponent(nameLabel).addComponent(nameField)
-						.addComponent(lengthLabel).addComponent(lengthVal).addComponent(widthLabel)
-						.addComponent(widthField))
-				.addComponent(featuresLabel).addComponent(features).addComponent(treasureLabel).addComponent(treasure)
-				.addComponent(notesLabel).addComponent(notes)
-				.addGroup(layout.createSequentialGroup().addComponent(colourPicker).addComponent(update))
+				.addGroup(layout.createSequentialGroup()
+						.addComponent(nameLabel)
+						.addComponent(nameField)
+						.addComponent(lengthLabel)
+						.addComponent(lengthVal)
+						.addComponent(widthLabel)
+						.addComponent(widthField)
+						.addComponent(heightLabel)
+						.addComponent(heightField))
+				.addComponent(featuresLabel)
+				.addComponent(features)
+				.addComponent(treasureLabel)
+				.addComponent(treasure)
+				.addComponent(notesLabel)
+				.addComponent(notes)
+				.addGroup(layout.createSequentialGroup()
+						.addComponent(colourPicker)
+						.addComponent(update))
 
 		);
 		layout.setVerticalGroup(layout.createSequentialGroup()
-				.addGroup(layout.createParallelGroup().addComponent(nameLabel).addComponent(nameField)
-						.addComponent(lengthLabel).addComponent(lengthVal).addComponent(widthLabel)
-						.addComponent(widthField))
-				.addComponent(featuresLabel).addComponent(features).addComponent(treasureLabel).addComponent(treasure)
-				.addComponent(notesLabel).addComponent(notes)
-				.addGroup(layout.createParallelGroup().addComponent(colourPicker).addComponent(update)));
+				.addGroup(layout.createParallelGroup()
+						.addComponent(nameLabel)
+						.addComponent(nameField)
+						.addComponent(lengthLabel)
+						.addComponent(lengthVal)
+						.addComponent(widthLabel)
+						.addComponent(widthField)
+						.addComponent(heightLabel)
+						.addComponent(heightField))
+				.addComponent(featuresLabel)
+				.addComponent(features)
+				.addComponent(treasureLabel)
+				.addComponent(treasure)
+				.addComponent(notesLabel)
+				.addComponent(notes)
+				.addGroup(layout.createParallelGroup()
+						.addComponent(colourPicker)
+						.addComponent(update))
+		);
 
-		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] { widthField, lengthVal });
-		layout.linkSize(SwingConstants.VERTICAL, new java.awt.Component[] { nameField, widthField, lengthVal });
+		layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] { widthField, lengthVal, heightField });
+		layout.linkSize(SwingConstants.VERTICAL, new java.awt.Component[] { nameField, widthField, lengthVal, heightField });
 		nameField.setMinimumSize(new Dimension(20, 0));
 		pack();
 	}
@@ -133,6 +171,10 @@ public class DescriptionDialog extends JDialog {
 			widthField.setColumns(widthField.getText().length());
 			pack();
 		});
+		TextListener.addChangeListener(heightField, e -> {
+			heightField.setColumns(heightField.getText().length());
+			pack();
+		});
 		TextListener.addChangeListener(lengthValField, e -> {
 			lengthValField.setColumns(lengthValField.getText().length());
 			pack();
@@ -159,6 +201,22 @@ public class DescriptionDialog extends JDialog {
 					d.length = Integer.parseInt(e.getMessage().replaceAll("\\D", ""));
 				} else if (e.getMessage().matches("For input string: \".*\"")) {
 					d.length = 0;
+				} else {
+					throw e;
+				}
+			}
+			
+			try {
+				d.height = Integer.parseInt(heightField.getText());
+				if (d.height != startHeight) {
+					MapController.updateHeight(d, d.height);
+				}
+				
+			} catch (NumberFormatException e) {
+				if (e.getMessage().matches("For input string: \"\\D*\\d+\\D*\"")) {
+					d.height = Integer.parseInt(e.getMessage().replaceAll("\\D", ""));
+				} else if (e.getMessage().matches("For input string: \".*\"")) {
+					d.height = 0;
 				} else {
 					throw e;
 				}

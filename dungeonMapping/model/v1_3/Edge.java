@@ -9,9 +9,10 @@ public class Edge extends GraphElement {
 	private Coords c2;
 
 	public double getLength() {
-		int x = c1.x - c2.x;
-		int y = c1.y - c2.y;
-		return Math.sqrt(x * x + y * y);
+		double x = (c1.x - c2.x) * m.getDistanceMultiplier();
+		double y = (c1.y - c2.y) * m.getDistanceMultiplier();
+		double z = (c1.z - c2.z) * m.getHeightDistanceMultiplier();
+		return Math.sqrt(x * x + y * y + z * z);
 	}
 
 	public Edge(Node node1, Node node2, DungeonMap m, String id) {

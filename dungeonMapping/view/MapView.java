@@ -156,9 +156,8 @@ public class MapView extends JPanel {
 			for (Edge e : m.getEdges()) {
 				Point pos1 = coordToScreen(m.getNode(e.getNode1()).getCoords());
 				Point pos2 = coordToScreen(m.getNode(e.getNode2()).getCoords());
-				double dx = scale * pos1.x - scale * pos2.x;
-				double dy = scale * pos1.y - scale * pos2.y;
-				double d = Math.sqrt(dy * dy + dx * dx);
+				
+				double d = pos1.distance(pos2);
 				double dTotal = p.distance(pos1) + p.distance(pos2);
 				if (dTotal + epsilon >= d && dTotal - epsilon <= d) {
 					return e;
