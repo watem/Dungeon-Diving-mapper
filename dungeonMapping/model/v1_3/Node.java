@@ -35,6 +35,14 @@ public class Node extends GraphElement {
 
 	public void moveNode(int x, int y, int z) {
 		coords = new Coords(x, y, z);
+		for (String s: getEdges()) {
+			Edge e = m.getEdge(s);
+			if (getId().equals(e.getNode1())) {
+				e.setNode1(this);
+			} else if (getId().equals(e.getNode1())) {
+				e.setNode2(this);
+			}
+		}
 	}
 
 	@Override

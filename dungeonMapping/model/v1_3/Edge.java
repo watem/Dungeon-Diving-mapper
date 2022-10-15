@@ -65,6 +65,6 @@ public class Edge extends GraphElement {
 
 	@Override
 	public String toString() {
-		return getId()+"[node1=" + node1 + c1+", node2=" + node2 + c2+ "]";
+		return getId()+" [n1:" + c1 +", n2:" + c2 + "] (len: " + (int) getLength() + ")";
 	}
 }
