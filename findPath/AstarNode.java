@@ -67,7 +67,7 @@ public class AstarNode {
 	}
 
 	
-	private static double distance(Node n1, Node n2, DungeonMap m) {
+	public static double distance(Node n1, Node n2, DungeonMap m) {
 		if (n1==null||n2==null) {
 			return Double.MAX_VALUE;
 		}

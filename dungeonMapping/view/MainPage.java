@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
@@ -23,7 +24,9 @@ import dungeonMapping.application.MappingApplication;
 import dungeonMapping.controller.MapController;
 import dungeonMapping.model.v1_3.DungeonMap;
 import dungeonMapping.model.v1_3.GraphElement;
+import dungeonMapping.model.v1_3.Node;
 import dungeonMapping.serializing.Persistence;
+import findPath.AstarNode;
 
 @SuppressWarnings("serial")
 public class MainPage extends JFrame {
@@ -46,6 +49,8 @@ public class MainPage extends JFrame {
 	private JRadioButton mousePath = new JRadioButton("Path", false);
 	private ButtonGroup mouseBehaviour = new ButtonGroup();
 
+	private JLabel pathlength = new JLabel();
+	
 	private JLabel itemDetails = new JLabel();
 
 	private JLabel disMulLabel = new JLabel("distance multiplier");
@@ -261,6 +266,7 @@ public class MainPage extends JFrame {
 										.addComponent(showZLevel)
 										.addComponent(showColour))
 								.addComponent(itemDetails)
+								.addComponent(pathlength)
 								.addGroup(layout.createSequentialGroup()
 										.addComponent(disMulLabel)
 										.addComponent(disMulField))
@@ -305,6 +311,7 @@ public class MainPage extends JFrame {
 										.addComponent(showZLevel)
 										.addComponent(showColour))
 								.addComponent(itemDetails)
+								.addComponent(pathlength)
 								.addGroup(layout.createParallelGroup()
 										.addComponent(disMulLabel)
 										.addComponent(disMulField))
@@ -347,6 +354,7 @@ public class MainPage extends JFrame {
 	}
 
 	private void setMode() {
+		pathlength.setText("");
 		mapView.path = null;
 		if (mouseDefault.isSelected()) {
 			mapView.ml.mode = Mouse.SELECT;
@@ -361,6 +369,7 @@ public class MainPage extends JFrame {
 			mapView.ml.mode = Mouse.PAINT;
 		} else if (mousePath.isSelected()) {
 			mapView.ml.mode = Mouse.PATH;
+			pathlength.setText("Length: ");
 		}
 	}
 
@@ -495,5 +504,24 @@ public class MainPage extends JFrame {
 	
 	public int getCurrentZLevel() {
 		return currentZLevel;
+	}
+
+	public void updatePath(List<Node> path) {
+		if (path != null) {
+			double distance = 0;
+			Node previous = null;
+			for(Node n: path) {
+				if (previous != null) {
+					distance += AstarNode.distance(previous, n, mapView.m);
+				}
+				previous = n;
+			}
+			pathlength.setText("Length: " + (int) distance);
+		} else {
+			pathlength.setText("Length: ");
+		}
+		
+		// TODO Auto-generated method stub
+		
 	}
 }

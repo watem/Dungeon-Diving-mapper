@@ -100,8 +100,10 @@ public class Mouse implements MouseListener, MouseMotionListener {
 			GraphElement ge = parent.getElementAt(e.getPoint());
 			if (parent.parent.getLastSelected() instanceof Node && ge instanceof Node) {
 				parent.path = AstarNode.findBestPath(parent.m, (Node) parent.parent.getLastSelected(), (Node) ge);
+				parent.parent.updatePath(parent.path);
 			} else {
 				parent.path = null;
+				parent.parent.updatePath(null);
 			}
 			parent.parent.setLastSelected(ge);
 			if (ge == null) {
