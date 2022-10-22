@@ -20,6 +20,11 @@ public class MapView extends JPanel {
 //	private List<Line2D> edges;
 //	private HashMap<Ellipse2D, Node> nodeMap;
 //	private HashMap<Line2D, Node> edgeMap;
+	public static final int INSIDE = 0; // 0000
+	public static final int LEFT = 1;   // 0001
+	public static final int RIGHT = 2;  // 0010
+	public static final int BOTTOM = 4; // 0100
+	public static final int TOP = 8;    // 1000
 
 	MainPage parent;
 	DungeonMap m;
@@ -46,6 +51,95 @@ public class MapView extends JPanel {
 	public void refresh() {
 		repaint();
 	}
+	
+	private boolean onScreen(Node n) {
+		Point pos = coordToScreen(n.getCoords());
+		return (pos.x + r > 0 && pos.y + r > 0 && pos.x - r < this.getWidth() && pos.y - r < this.getHeight());
+	}
+	
+	
+	private int outCode(double x, double y) {
+		int code = INSIDE;
+		if (x < 0)           // to the left of clip window
+			code |= LEFT;
+		else if (x > this.getWidth())      // to the right of clip window
+			code |= RIGHT;
+		if (y < 0)           // below the clip window
+			code |= BOTTOM;
+		else if (y > this.getHeight())      // above the clip window
+			code |= TOP;
+
+		return code;
+	}
+	
+	// Cohen–Sutherland clipping algorithm clips a line from
+	// P0 = (x0, y0) to P1 = (x1, y1) against a rectangle with 
+	// diagonal from (xmin, ymin) to (xmax, ymax).
+	private boolean CohenSutherlandLineClip(Point pos1, Point pos2) {
+		// compute outcodes for P0, P1, and whatever point lies outside the clip rectangle
+		int outcode0 = outCode(pos1.x, pos1.y);
+		int outcode1 = outCode(pos2.x, pos2.y);
+		boolean accept = false;
+		double ymax = this.getHeight();
+		double xmax = this.getWidth();
+		double x0 = pos1.x;
+		double y0 = pos1.y;
+		double x1 = pos2.x;
+		double y1 = pos2.y;
+
+		while (true) {
+			if ((outcode0 | outcode1) == 0) {
+				// bitwise OR is 0: both points inside window; trivially accept and exit loop
+				accept = true;
+				break;
+			} else if ((outcode0 & outcode1) != 0) {
+				// bitwise AND is not 0: both points share an outside zone (LEFT, RIGHT, TOP,
+				// or BOTTOM), so both must be outside window; exit loop (accept is false)
+				break;
+			} else {
+				// failed both tests, so calculate the line segment to clip
+				// from an outside point to an intersection with clip edge
+				double x = 0, y = 0;
+
+				// At least one endpoint is outside the clip rectangle; pick it.
+				int outcodeOut = outcode1 > outcode0 ? outcode1 : outcode0;
+
+				// Now find the intersection point;
+				// use formulas:
+				//   slope = (y1 - y0) / (x1 - x0)
+				//   x = x0 + (1 / slope) * (ym - y0), where ym is ymin or ymax
+				//   y = y0 + slope * (xm - x0), where xm is xmin or xmax
+				// No need to worry about divide-by-zero because, in each case, the
+				// outcode bit being tested guarantees the denominator is non-zero
+				if ((outcodeOut & TOP) != 0) {           // point is above the clip window
+					x = x0 + (x1 - x0) * (ymax - y0) / (y1 - y0);
+					y = ymax;
+				} else if ((outcodeOut & BOTTOM) != 0) { // point is below the clip window
+					x = x0 + (x1 - x0) * (-y0) / (y1 - y0);
+					y = 0;
+				} else if ((outcodeOut & RIGHT) != 0) {  // point is to the right of clip window
+					y = y0 + (y1 - y0) * (xmax - x0) / (x1 - x0);
+					x = xmax;
+				} else if ((outcodeOut & LEFT) != 0) {   // point is to the left of clip window
+					y = y0 + (y1 - y0) * (-x0) / (x1 - x0);
+					x = 0;
+				}
+
+				// Now we move outside point to intersection point to clip
+				// and get ready for next pass.
+				if (outcodeOut == outcode0) {
+					x0 = x;
+					y0 = y;
+					outcode0 = outCode(x0, y0);
+				} else {
+					x1 = x;
+					y1 = y;
+					outcode1 = outCode(x1, y1);
+				}
+			}
+		}
+		return accept;
+	}
 
 	private void doDrawing(Graphics g) {
 		// bodyLocations = SpatialController.getAllLocations(system.getId());
@@ -69,10 +163,7 @@ public class MapView extends JPanel {
 
 					Point pos1 = coordToScreen(m.getNode(e.getNode1()).getCoords());
 					Point pos2 = coordToScreen(m.getNode(e.getNode2()).getCoords());
-					if ((pos1.x + r > 0 && pos1.y + r > 0 && pos1.x - r < this.getWidth()
-							&& pos1.y - r < this.getHeight())
-							|| (pos2.x + r > 0 && pos2.y + r > 0 && pos2.x - r < this.getWidth()
-									&& pos2.y - r < this.getHeight())) {
+					if (CohenSutherlandLineClip(pos1, pos2)) {
 						if (parent.areColoursShown()) {
 							g2d.setColor(e.getDescription().colour);
 						}
@@ -83,9 +174,8 @@ public class MapView extends JPanel {
 			if (nodeSet != null && parent.areNodesShown()) {
 				g2d.setFont(getFont().deriveFont(3));
 				for (Node n : m.getNodes()) {
-//			    	Coords pos = transform(n.getCoords());
-					Point pos = coordToScreen(n.getCoords());
-					if (pos.x + r > 0 && pos.y + r > 0 && pos.x - r < this.getWidth() && pos.y - r < this.getHeight()) {
+					if (onScreen(n)) {
+						Point pos = coordToScreen(n.getCoords());
 						if (parent.areColoursShown()) {
 							g2d.setColor(n.getDescription().colour);
 						}
